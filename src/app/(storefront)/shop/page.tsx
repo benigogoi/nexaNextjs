@@ -22,6 +22,8 @@ interface Product {
   category: string;
   created_at: string;
   is_bundle?: boolean;
+  category_type?: string | null;
+  parent_category?: string | null;
 }
 
 interface Category {

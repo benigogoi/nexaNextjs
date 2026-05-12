@@ -35,6 +35,8 @@ interface Product {
   value_points?: string[] | null;
   urgency_tag?: string | null;
   highlight_badge?: string | null;
+  category_type?: string | null;
+  parent_category?: string | null;
 }
 
 // Inline line items stored directly in bundle_items JSONB — no DB link
