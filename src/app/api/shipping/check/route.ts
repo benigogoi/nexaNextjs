@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       if (available) {
         // Filter out zero rates if possible to avoid false "Free Shipping"
         const rates = couriers.map((c: any) => Number(c.total_amount || c.freight_charges || c.rate || c.charge || c.total_charge || c.shipping_charge || 0));
-        const validRates = rates.filter(r => r > 0);
+        const validRates = rates.filter((r: number) => r > 0);
         minRate = validRates.length > 0 ? Math.min(...validRates) : 0;
       }
 
