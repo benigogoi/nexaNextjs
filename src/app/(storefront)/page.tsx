@@ -232,42 +232,57 @@ export default async function Home() {
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {bestsellers.length > 0 ? (
-              bestsellers.map((prod) => (
+              bestsellers.map((prod, index) => (
                 <Link
                   href={`/products/${prod.id}`}
                   key={prod.id}
-                  className="group relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#111] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.2)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[var(--color-primary)]/30"
+                  className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#111] shadow-[0_12px_40px_rgba(0,0,0,0.2)] transition-all duration-500 hover:-translate-y-2 hover:border-[var(--color-primary)]/20 hover:shadow-[0_32px_64px_rgba(0,0,0,0.4)]"
                 >
-                  <div className="relative aspect-[3/4] overflow-hidden rounded-[1.5rem] bg-black">
+                  <div className="relative aspect-[4/5] overflow-hidden bg-black">
                     {prod.image_url ? (
                       <img 
                         src={prod.image_url} 
                         alt={prod.name} 
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                        className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
                         loading="lazy"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-[#333]">
-                        <span className="text-[10px] font-bold uppercase tracking-widest">No Image</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">No Image</span>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-                    <span className="absolute top-4 right-4 rounded-full bg-[var(--color-primary-container)] px-3 py-1 text-[8px] font-bold uppercase tracking-[0.15em] text-[var(--color-on-primary-fixed)]">
-                      Bestseller
-                    </span>
+                    
+                    {/* Badge */}
+                    <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between p-4">
+                      <span className="rounded-full bg-[var(--color-primary)] px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.15em] text-[var(--color-on-primary-fixed)] shadow-sm backdrop-blur-md">
+                        Bestseller
+                      </span>
+                    </div>
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
                   </div>
-                  <div className="mt-4 flex items-start justify-between px-1">
-                    <div>
-                      <h3 className="text-base font-bold text-white tracking-wide group-hover:text-[var(--color-primary)] transition-colors">
-                        {prod.name}
-                      </h3>
-                      <p className="mt-1 text-[10px] font-medium text-white/50 uppercase tracking-[0.1em]">
+
+                  <div className="flex flex-col flex-1 gap-4 p-5 sm:p-6 bg-[#111]">
+                    <div className="flex flex-col gap-1.5">
+                      <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[var(--color-primary)]">
                         {prod.category || "Poster"}
                       </p>
+                      <h3 className="text-sm sm:text-lg font-black leading-tight tracking-tight text-white transition-colors group-hover:text-[var(--color-primary)]">
+                        {prod.name}
+                      </h3>
                     </div>
-                    <span className="text-2xl font-black text-[var(--color-primary)]">
-                      ₹{prod.base_price?.toFixed(0)}
-                    </span>
+
+                    <div className="mt-auto flex items-center justify-between pt-4 border-t border-white/5">
+                      <span className="font-mono text-sm sm:text-xl font-black text-[var(--color-primary)]">
+                        ₹{prod.base_price?.toFixed(0)}
+                      </span>
+                      <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-white/40">
+                        <span className="hidden sm:inline">Details</span>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" className="text-[var(--color-primary)] transition-transform duration-300 group-hover:translate-x-1">
+                          <path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </Link>
               ))
@@ -434,38 +449,57 @@ export default async function Home() {
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {latestProducts.length > 0 ? (
-              latestProducts.map((prod) => (
+              latestProducts.map((prod, index) => (
                 <Link
                   href={`/products/${prod.id}`}
                   key={prod.id}
-                  className="group relative overflow-hidden rounded-[2rem] border border-[var(--color-outline-variant)] bg-[var(--color-surface-container-lowest)] p-4 shadow-[0_16px_40px_rgba(0,0,0,0.05)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[var(--color-primary)]/30"
+                  className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-[var(--color-outline-variant)]/30 bg-[var(--color-surface-container-lowest)] shadow-[0_12px_40px_rgba(0,0,0,0.04)] transition-all duration-500 hover:-translate-y-2 hover:border-[var(--color-primary)]/20 hover:shadow-[0_32px_64px_rgba(0,0,0,0.08)]"
                 >
-                  <div className="relative aspect-[3/4] overflow-hidden rounded-[1.5rem] bg-[var(--color-surface)]">
+                  <div className="relative aspect-[4/5] overflow-hidden bg-[var(--color-surface-container-low)]">
                     {prod.image_url ? (
                       <img 
                         src={prod.image_url} 
                         alt={prod.name} 
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                        className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
                         loading="lazy"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-[#555]">
-                        <span className="text-[10px] font-bold uppercase tracking-widest">No Image</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">No Image</span>
                       </div>
                     )}
+                    
+                    {/* Badge */}
+                    <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between p-4">
+                      <span className="rounded-full bg-white/90 px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.15em] text-black shadow-sm backdrop-blur-md">
+                        New Arrival
+                      </span>
+                    </div>
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-60" />
                   </div>
-                  <div className="mt-4 flex items-start justify-between px-1">
-                    <div>
-                      <h3 className="text-base font-bold tracking-wide group-hover:text-[var(--color-primary)] transition-colors">
-                        {prod.name}
-                      </h3>
-                      <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.1em] text-[var(--color-secondary)]">
+
+                  <div className="flex flex-col flex-1 gap-4 p-5 sm:p-6">
+                    <div className="flex flex-col gap-1.5">
+                      <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[var(--color-primary)]">
                         {prod.category || "Poster"}
                       </p>
+                      <h3 className="text-sm sm:text-lg font-black leading-tight tracking-tight text-[var(--color-on-surface)] transition-colors group-hover:text-[var(--color-primary)]">
+                        {prod.name}
+                      </h3>
                     </div>
-                    <span className="font-mono text-sm font-bold text-[var(--color-primary)]">
-                      ₹{prod.base_price?.toFixed(0)}
-                    </span>
+
+                    <div className="mt-auto flex items-center justify-between pt-4 border-t border-[var(--color-outline-variant)]/20">
+                      <span className="font-mono text-sm sm:text-xl font-black text-[var(--color-on-surface)]">
+                        ₹{prod.base_price?.toFixed(0)}
+                      </span>
+                      <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--color-secondary)]">
+                        <span className="hidden sm:inline">Details</span>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" className="text-[var(--color-primary)] transition-transform duration-300 group-hover:translate-x-1">
+                          <path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </Link>
               ))
@@ -501,42 +535,57 @@ export default async function Home() {
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {featuredDecals.length > 0 ? (
-              featuredDecals.map((prod) => (
+              featuredDecals.map((prod, index) => (
                 <Link
                   href={`/products/${prod.id}`}
                   key={prod.id}
-                  className="group relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#111] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.2)] transition-all duration-500 hover:-translate-y-1.5 hover:border-[var(--color-primary)]/30"
+                  className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#111] shadow-[0_12px_40px_rgba(0,0,0,0.2)] transition-all duration-500 hover:-translate-y-2 hover:border-[var(--color-primary)]/20 hover:shadow-[0_32px_64px_rgba(0,0,0,0.4)]"
                 >
-                  <div className="relative aspect-[3/4] overflow-hidden rounded-[1.5rem] bg-black">
+                  <div className="relative aspect-[4/5] overflow-hidden bg-black">
                     {prod.image_url ? (
                       <img 
                         src={prod.image_url} 
                         alt={prod.name} 
-                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+                        className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
                         loading="lazy"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-[#333]">
-                        <span className="text-[10px] font-bold uppercase tracking-widest">No Image</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">No Image</span>
                       </div>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-                    <span className="absolute top-4 right-4 rounded-full bg-[var(--color-primary-container)] px-3 py-1 text-[8px] font-bold uppercase tracking-[0.15em] text-[var(--color-on-primary-fixed)]">
-                      New Arrival
-                    </span>
+                    
+                    {/* Badge */}
+                    <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between p-4">
+                      <span className="rounded-full bg-[var(--color-primary-container)] px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.15em] text-[var(--color-on-primary-fixed)] shadow-sm backdrop-blur-md">
+                        Decal
+                      </span>
+                    </div>
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
                   </div>
-                  <div className="mt-4 flex items-start justify-between px-1">
-                    <div>
-                      <h3 className="text-base font-bold text-white tracking-wide group-hover:text-[var(--color-primary)] transition-colors">
-                        {prod.name}
-                      </h3>
-                      <p className="mt-1 text-[10px] font-medium text-white/50 uppercase tracking-[0.1em]">
+
+                  <div className="flex flex-col flex-1 gap-4 p-5 sm:p-6 bg-[#111]">
+                    <div className="flex flex-col gap-1.5">
+                      <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[var(--color-primary)]">
                         {prod.category || "Decal"}
                       </p>
+                      <h3 className="text-sm sm:text-lg font-black leading-tight tracking-tight text-white transition-colors group-hover:text-[var(--color-primary)]">
+                        {prod.name}
+                      </h3>
                     </div>
-                    <span className="text-2xl font-black text-[var(--color-primary)]">
-                      ₹{prod.base_price?.toFixed(0)}
-                    </span>
+
+                    <div className="mt-auto flex items-center justify-between pt-4 border-t border-white/5">
+                      <span className="font-mono text-sm sm:text-xl font-black text-[var(--color-primary)]">
+                        ₹{prod.base_price?.toFixed(0)}
+                      </span>
+                      <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-white/40">
+                        <span className="hidden sm:inline">Details</span>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" className="text-[var(--color-primary)] transition-transform duration-300 group-hover:translate-x-1">
+                          <path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
                 </Link>
               ))

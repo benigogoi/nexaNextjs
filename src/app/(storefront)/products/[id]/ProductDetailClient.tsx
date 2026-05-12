@@ -678,14 +678,14 @@ export default function ProductDetailClient({
               </h2>
             </div>
             {/* Horizontal scroll on mobile, grid on sm+ */}
-            <div className="flex gap-4 overflow-x-auto pb-3 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3 xl:grid-cols-4 snap-x snap-mandatory sm:snap-none -mx-5 px-5 sm:mx-0 sm:px-0">
+            <div className="flex gap-4 overflow-x-auto pb-6 sm:grid sm:grid-cols-2 sm:overflow-visible lg:grid-cols-3 xl:grid-cols-4 snap-x snap-mandatory sm:snap-none -mx-5 px-5 sm:mx-0 sm:px-0">
               {bundleItems.map((item, idx) => (
                 <div
                   key={idx}
-                  className="flex-shrink-0 w-48 sm:w-auto flex flex-col overflow-hidden rounded-[1.5rem] border border-[var(--color-outline-variant)]/50 bg-[var(--color-surface-container-lowest)] shadow-[0_8px_30px_rgba(25,28,29,0.06)] snap-start sm:snap-none"
+                  className="flex-shrink-0 w-56 sm:w-auto flex flex-col overflow-hidden rounded-[2rem] border border-[var(--color-outline-variant)]/30 bg-[var(--color-surface-container-lowest)] shadow-[0_8px_30px_rgba(0,0,0,0.04)] snap-start sm:snap-none"
                 >
-                  {/* Item image or placeholder */}
-                  <div className="relative aspect-square overflow-hidden bg-[var(--color-surface)]">
+                  {/* Item image */}
+                  <div className="relative aspect-[4/5] overflow-hidden bg-[var(--color-surface-container-low)]">
                     {item.image_url ? (
                       <img
                         src={item.image_url}
@@ -693,24 +693,23 @@ export default function ProductDetailClient({
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-[var(--color-surface-container-high)]">
-                        <span className="material-symbols-outlined text-[40px] opacity-20">inventory_2</span>
+                      <div className="flex h-full w-full items-center justify-center">
+                        <span className="material-symbols-outlined text-[40px] opacity-10">inventory_2</span>
                       </div>
                     )}
                     {item.quantity > 1 && (
-                      <span className="absolute top-2 right-2 rounded-full bg-[var(--color-primary-container)] px-2 py-0.5 text-[10px] font-black text-[var(--color-on-background)]">
+                      <span className="absolute top-3 right-3 rounded-full bg-[var(--color-primary)] px-2.5 py-1 text-[9px] font-black text-[var(--color-on-primary-fixed)] shadow-sm">
                         x{item.quantity}
                       </span>
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-60" />
                   </div>
                   {/* Item info */}
-                  <div className="p-3 flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="text-sm font-black leading-tight tracking-tight text-[var(--color-on-surface)] line-clamp-2">
-                        {item.name}
-                      </p>
-                    </div>
-                    <span className="shrink-0 text-xl font-black text-[var(--color-primary)]">
+                  <div className="p-4 flex flex-col gap-2">
+                    <p className="text-sm font-black leading-tight tracking-tight text-[var(--color-on-surface)] line-clamp-2">
+                      {item.name}
+                    </p>
+                    <span className="text-lg font-black text-[var(--color-primary)]">
                       ₹{Number(item.price).toFixed(0)}
                     </span>
                   </div>
@@ -743,44 +742,52 @@ export default function ProductDetailClient({
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:gap-8 sm:grid-cols-2 lg:grid-cols-4">
               {related.map((rel) => {
                 const img = rel.image_url || (rel.mockup_urls?.[0] ?? null);
                 return (
                   <Link
                     key={rel.id}
                     href={`/products/${rel.id}`}
-                    className="group flex flex-col overflow-hidden rounded-[1.5rem] border border-[var(--color-outline-variant)]/50 bg-[var(--color-surface-container-lowest)] shadow-[0_8px_30px_rgba(25,28,29,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_50px_rgba(25,28,29,0.12)]"
+                    className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-[var(--color-outline-variant)]/30 bg-[var(--color-surface-container-lowest)] shadow-[0_12px_40px_rgba(0,0,0,0.04)] transition-all duration-500 hover:-translate-y-2 hover:border-[var(--color-primary)]/20 hover:shadow-[0_32px_64px_rgba(0,0,0,0.08)]"
                   >
                     {/* Image */}
-                    <div className="relative aspect-square overflow-hidden bg-[var(--color-surface)]">
+                    <div className="relative aspect-[4/5] overflow-hidden bg-[var(--color-surface-container-low)]">
                       {img ? (
                         <img
                           src={img}
                           alt={rel.name}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+                          className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center">
-                          <span className="text-3xl opacity-10">[]</span>
+                          <span className="text-[10px] font-black uppercase tracking-widest opacity-10">No Image</span>
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                      <p className="absolute bottom-3 left-3 right-3 text-[8px] font-black uppercase tracking-[0.2em] text-[var(--color-primary-container)]">
-                        {rel.category}
-                      </p>
+                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-60" />
+                      
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <p className="text-[8px] font-black uppercase tracking-[0.25em] text-[var(--color-primary)]">
+                          {rel.category}
+                        </p>
+                      </div>
                     </div>
 
                     {/* Footer */}
-                    <div className="p-3 flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <h3 className="text-sm font-black leading-tight tracking-tight text-[var(--color-on-surface)] group-hover:text-[var(--color-primary)] transition-colors truncate">
-                          {rel.name}
-                        </h3>
+                    <div className="flex flex-col flex-1 gap-3 p-4 sm:p-5 bg-[var(--color-surface-container-lowest)]">
+                      <h3 className="text-sm font-black leading-tight tracking-tight text-[var(--color-on-surface)] group-hover:text-[var(--color-primary)] transition-colors line-clamp-1">
+                        {rel.name}
+                      </h3>
+                      
+                      <div className="mt-auto flex items-center justify-between pt-3 border-t border-[var(--color-outline-variant)]/20">
+                        <span className="font-mono text-sm sm:text-lg font-black text-[var(--color-on-surface)]">
+                          ₹{Number(rel.base_price).toFixed(0)}
+                        </span>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" className="text-[var(--color-primary)] transition-transform duration-300 group-hover:translate-x-1">
+                          <path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
                       </div>
-                      <span className="shrink-0 text-xl font-black text-[var(--color-primary)]">
-                        ₹{Number(rel.base_price).toFixed(0)}
-                      </span>
                     </div>
                   </Link>
                 );

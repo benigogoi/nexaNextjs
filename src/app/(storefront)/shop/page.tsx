@@ -370,7 +370,7 @@ export default async function ShopPage({
                   </Link>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-3.5 sm:gap-6 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-2 gap-4 sm:gap-8 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3">
                   {products.map((product, index) => {
                     const img = getProductImage(product);
                     const categoryLabel = getDisplayName(product.category || "Product");
@@ -379,62 +379,60 @@ export default async function ShopPage({
                       <Link
                         href={`/products/${product.id}`}
                         key={product.id}
-                        className="group relative flex flex-col overflow-hidden rounded-[1.5rem] border border-[var(--color-outline-variant)]/40 bg-[var(--color-surface-container-lowest)] shadow-[0_16px_40px_rgba(25,28,29,0.06)] transition-all duration-500 hover:-translate-y-1 hover:border-[var(--color-primary-container)]/30 hover:shadow-[0_24px_60px_rgba(25,28,29,0.12)]"
+                        className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-[var(--color-outline-variant)]/30 bg-[var(--color-surface-container-lowest)] shadow-[0_12px_40px_rgba(0,0,0,0.04)] transition-all duration-500 hover:-translate-y-2 hover:border-[var(--color-primary)]/20 hover:shadow-[0_32px_64px_rgba(0,0,0,0.08)]"
                       >
-                        {/* Image */}
-                        <div className="relative overflow-hidden rounded-t-[1.5rem] border-b border-black/5 bg-[var(--color-surface)] flex-shrink-0">
-                          <div className="absolute left-0 top-0 bottom-0 z-20 w-[2px] origin-bottom scale-y-0 rounded-full bg-[var(--color-primary-container)] transition-transform duration-500 group-hover:scale-y-100" />
-                          <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between px-3.5 py-3.5">
-                            <span className={`rounded-full px-2 py-0.5 text-[7px] font-black uppercase tracking-[0.24em] shadow-sm ${product.is_bundle
-                                ? "bg-[#ccff00] text-[#121212]"
+                        {/* Image / Mockup Container */}
+                        <div className="relative aspect-[4/5] overflow-hidden bg-[var(--color-surface-container-low)]">
+                          {img ? (
+                            <img
+                              src={img}
+                              alt={product.name}
+                              className="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-105"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center bg-neutral-900/5">
+                              <span className="text-[10px] font-black uppercase tracking-widest opacity-20 text-[var(--color-on-surface)]">No Image</span>
+                            </div>
+                          )}
+                          
+                          {/* Badges */}
+                          <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between p-4">
+                            <span className={`rounded-full px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.2em] shadow-sm backdrop-blur-md ${product.is_bundle
+                                ? "bg-[var(--color-primary)] text-[var(--color-on-primary-fixed)]"
                                 : "bg-white/90 text-black"
                               }`}>
-                              {product.is_bundle ? "Bundle" : index < 4 ? "New" : "Live"}
+                              {product.is_bundle ? "Bundle" : index < 4 ? "New Drop" : "Live"}
                             </span>
-                            <span className="font-mono text-[8px] font-bold uppercase tracking-[0.2em] text-white/50">
+                            <span className="font-mono text-[9px] font-bold text-black/20 group-hover:text-[var(--color-primary)]/40 transition-colors">
                               {String(index + 1).padStart(2, "0")}
                             </span>
                           </div>
 
-                          <div className="relative aspect-[1.1/1]">
-                            {img ? (
-                              <img
-                                src={img}
-                                alt={product.name}
-                                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                                loading="lazy"
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center bg-neutral-900">
-                                <span className="text-sm opacity-20 text-white">[]</span>
-                              </div>
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                          </div>
+                          {/* Soft Vignette */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-60" />
                         </div>
 
-                        {/* Card footer */}
-                        <div className="flex flex-col flex-1 justify-between gap-3 p-3.5 sm:p-5 bg-[var(--color-surface-container-lowest)]">
-                          <div className="flex flex-col gap-1">
-                            <p className="text-[7.5px] sm:text-[9px] font-black uppercase tracking-[0.28em] text-[var(--color-primary)]">
+                        {/* Card Content */}
+                        <div className="flex flex-col flex-1 gap-4 p-4 sm:p-6">
+                          <div className="flex flex-col gap-1.5">
+                            <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[var(--color-primary)]">
                               {categoryLabel}
                             </p>
-                            <h3 className="text-sm sm:text-lg font-black leading-tight tracking-[-0.02em] text-[var(--color-on-surface)] transition-colors group-hover:text-[var(--color-secondary)]">
+                            <h3 className="text-sm sm:text-lg font-black leading-tight tracking-tight text-[var(--color-on-surface)] transition-colors group-hover:text-[var(--color-primary)]">
                               {product.name}
                             </h3>
                           </div>
 
-                          <div className="flex flex-col gap-2.5 pt-3 border-t border-[var(--color-outline-variant)]/40 mt-auto">
-                            <div className="flex items-center justify-between">
-                              <span className="font-mono text-xs sm:text-base font-black text-[var(--color-on-surface)] tracking-tight">
-                                ₹{Number(product.base_price).toFixed(0)}
-                              </span>
-                              <span className="flex items-center gap-1 text-[7.5px] sm:text-[9px] font-black uppercase tracking-[0.2em] text-[var(--color-on-surface)]/70">
-                                View
-                                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true" className="text-[var(--color-primary)] transition-transform duration-300 group-hover:translate-x-0.5">
-                                  <path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                              </span>
+                          <div className="mt-auto flex items-center justify-between pt-4 border-t border-[var(--color-outline-variant)]/20">
+                            <span className="font-mono text-sm sm:text-xl font-black text-[var(--color-on-surface)]">
+                              ₹{Number(product.base_price).toFixed(0)}
+                            </span>
+                            <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-[var(--color-secondary)]">
+                              <span className="hidden sm:inline">Details</span>
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" className="text-[var(--color-primary)] transition-transform duration-300 group-hover:translate-x-1">
+                                <path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
                             </div>
                           </div>
                         </div>
