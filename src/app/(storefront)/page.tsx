@@ -107,33 +107,34 @@ export default async function Home() {
       />
 
       {/* 1. HERO SECTION (Split-Category) */}
-      <section className="relative overflow-hidden px-5 pt-12 pb-12 sm:px-8 md:pt-14 md:pb-16 flex items-center mt-[-20px]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(204,255,0,0.05),transparent_50%)]" />
-        <div className="relative z-10 mx-auto grid max-w-7xl w-full gap-8 lg:grid-cols-12 lg:items-center xl:gap-12">
+      <section className="relative overflow-hidden px-5 pt-20 pb-20 sm:px-8 md:pt-28 md:pb-32 flex items-center mt-[-40px]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(204,255,0,0.06),transparent_55%)]" />
+        <div className="relative z-10 mx-auto grid max-w-7xl w-full gap-12 lg:grid-cols-12 lg:items-center xl:gap-16">
           <div className="lg:col-span-6 xl:col-span-5">
-            <div className="mb-4 flex flex-wrap items-center gap-3 text-[10px] font-bold uppercase tracking-[0.28em] text-[var(--color-primary)]">
-              <span className="rounded-full border border-[var(--color-outline-variant)] bg-[var(--color-surface-container-highest)] px-3 py-1.5 text-[var(--color-on-surface)] shadow-sm backdrop-blur">
-                Dual-Category Tier
+            <div className="mb-6 flex flex-wrap items-center gap-3 text-[9px] font-black uppercase tracking-[0.4em] text-[var(--color-primary)]">
+              <span className="rounded-full border border-[var(--color-outline-variant)]/30 bg-[var(--color-surface-container-highest)]/40 px-3 py-1.5 text-[var(--color-on-surface)] shadow-sm backdrop-blur-md">
+                Est. 2024
               </span>
-              <span className="text-[var(--color-secondary)]">Walls & Windshields</span>
+              <span className="text-[var(--color-secondary)] opacity-80">Archival Series</span>
             </div>
             
-            <h1 className="max-w-2xl text-[clamp(2rem,5vw,3.5rem)] font-black leading-[1.05] tracking-[-0.04em] text-[var(--color-on-surface)]">
-              Define Your Space.
-              <span className="mt-2 block text-[var(--color-primary)]">
-                Define Your Drive.
+            <h1 className="max-w-2xl text-[clamp(2.5rem,6vw,4.5rem)] font-black leading-[0.9] tracking-[-0.05em] text-[var(--color-on-surface)]">
+              Precision Art 
+              <br />
+              <span className="text-[var(--color-primary)]">
+                For The Driven.
               </span>
             </h1>
             
-            <p className="mt-4 max-w-lg text-sm leading-7 text-[var(--color-secondary)] sm:text-base">
-              Museum-grade framed posters for your walls. Precision-cut vinyl decals for your windshield. Collectible art engineered for true enthusiasts.
+            <p className="mt-6 max-w-lg text-sm leading-8 text-[var(--color-secondary)] sm:text-lg opacity-90">
+              Museum-grade framed prints and precision-cut windshield decals. Engineering the visual legacy of automotive culture into your personal space.
             </p>
             
-            <div className="mt-8 flex flex-col flex-wrap gap-4 sm:flex-row">
-              <Link href="/shop?category=posters" className="inline-flex min-w-[210px] w-full items-center justify-center rounded-full bg-[var(--color-on-background)] px-8 py-4 text-center text-sm font-black uppercase tracking-[0.22em] text-[var(--color-primary-container)] shadow-[0_18px_40px_rgba(25,28,29,0.15)] transition-transform duration-200 hover:-translate-y-0.5 sm:w-auto">
+            <div className="mt-10 flex flex-col flex-wrap gap-4 sm:flex-row">
+              <Link href="/shop?category=posters" className="inline-flex min-w-[220px] w-full items-center justify-center rounded-xl bg-[var(--color-on-background)] px-8 py-4.5 text-center text-xs font-black uppercase tracking-[0.25em] text-[var(--color-primary-container)] shadow-[0_20px_50px_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_25px_60px_rgba(204,255,0,0.15)] sm:w-auto">
                 Shop Posters
               </Link>
-              <Link href="/shop?category=decals" className="inline-flex min-w-[210px] w-full items-center justify-center rounded-full border border-[var(--color-outline-variant)] bg-[var(--color-surface)] px-8 py-4 text-center text-sm font-black uppercase tracking-[0.22em] text-[var(--color-on-surface)] transition-colors hover:bg-[var(--color-surface-container-highest)] sm:w-auto">
+              <Link href="/shop?category=decals" className="inline-flex min-w-[220px] w-full items-center justify-center rounded-xl border border-[var(--color-outline-variant)] bg-[var(--color-surface)]/50 px-8 py-4.5 text-center text-xs font-black uppercase tracking-[0.25em] text-[var(--color-on-surface)] backdrop-blur-sm transition-all duration-300 hover:bg-[var(--color-surface-container-highest)] hover:-translate-y-1 sm:w-auto">
                 Explore Decals
               </Link>
             </div>
@@ -213,20 +214,21 @@ export default async function Home() {
       </section>
 
       {/* 2. BESTSELLERS SECTION */}
-      <section className="relative overflow-hidden border-t border-white/[0.05] bg-[#0a0a0a] py-20">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(204,255,0,0.05),transparent)]" />
+      <section className="relative overflow-hidden border-t border-white/[0.05] bg-[#0a0a0a] py-32 sm:py-40">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(204,255,0,0.06),transparent)]" />
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+          <div className="mb-16 flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[var(--color-primary)]">
-                Popular Demand
+              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--color-primary)]">
+                The Standard
               </p>
-              <h2 className="mt-3 text-4xl font-black uppercase leading-none tracking-tighter text-white sm:text-5xl">
-                Bestselling <span className="text-[#555]">Posters</span>
+              <h2 className="mt-4 text-4xl font-black uppercase leading-[0.9] tracking-tighter text-white sm:text-6xl">
+                Bestselling <span className="text-[#333]">Series</span>
               </h2>
             </div>
-            <Link href="/shop?category=posters" className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/60 hover:text-[var(--color-primary)] transition-colors">
-              View All Bestsellers &rarr;
+            <Link href="/shop?category=posters" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 hover:text-[var(--color-primary)] transition-all flex items-center gap-2 group">
+              Browse All Series 
+              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
             </Link>
           </div>
 
@@ -296,18 +298,18 @@ export default async function Home() {
       </section>
 
       {/* 3. COLLECTIONS / SERIES */}
-      <section id="spectrum" className="relative overflow-hidden border-t border-white/[0.05] bg-[var(--color-surface)] py-20">
-        <div className="mx-auto mb-12 flex max-w-7xl items-end justify-between gap-8 px-5 sm:px-8">
+      <section id="spectrum" className="relative overflow-hidden border-t border-white/[0.05] bg-[var(--color-surface)] py-32 sm:py-40">
+        <div className="mx-auto mb-16 flex max-w-7xl items-end justify-between gap-10 px-5 sm:px-8">
           <div className="flex items-end gap-8">
-            <div className="hidden h-20 w-1 shrink-0 rounded-full bg-[var(--color-primary-container)] sm:block" />
+            <div className="hidden h-24 w-1.5 shrink-0 rounded-full bg-[var(--color-primary)] sm:block opacity-80" />
             <div>
-              <p className="mb-2 text-[10px] font-black uppercase tracking-[0.35em] text-[var(--color-primary)]">
-                Curated Series
+              <p className="mb-3 text-[9px] font-black uppercase tracking-[0.4em] text-[var(--color-primary)]">
+                The Collection List
               </p>
-              <h2 className="text-4xl font-black uppercase leading-none tracking-tighter text-[var(--color-on-surface)] sm:text-5xl">
+              <h2 className="text-4xl font-black uppercase leading-[0.9] tracking-tighter text-[var(--color-on-surface)] sm:text-6xl">
                 Find Your
                 <br />
-                <span className="text-[var(--color-secondary)]">Collection</span>
+                <span className="text-[var(--color-secondary)]">Discipline</span>
               </h2>
             </div>
           </div>
@@ -334,14 +336,14 @@ export default async function Home() {
       </section>
 
       {/* 4. PREMIUM TRUST SECTION */}
-      <section className="relative overflow-hidden border-t border-white/[0.05] bg-[#0a0a0a] py-24 text-white">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(204,255,0,0.03),transparent_40%)]" />
+      <section className="relative overflow-hidden border-t border-white/[0.05] bg-[#050505] py-32 sm:py-48 text-white">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(204,255,0,0.04),transparent_45%)]" />
         <div className="relative z-10 mx-auto max-w-5xl px-5 text-center sm:px-8">
-          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[var(--color-primary)]">
-            Quality Without Compromise
+          <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--color-primary)]">
+            Engineering Standards
           </p>
-          <h2 className="mt-4 text-3xl font-black uppercase tracking-tight sm:text-5xl">
-            Built for the <span className="text-[#555]">Discerning Collector</span>
+          <h2 className="mt-5 text-3xl font-black uppercase tracking-tighter sm:text-6xl">
+            Built for the <span className="text-[#222]">Purist</span>
           </h2>
           
           <div className="mt-16 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
@@ -389,14 +391,14 @@ export default async function Home() {
       </section>
 
       {/* 5. COLLECTOR INSTALLATIONS */}
-      <section className="relative overflow-hidden border-t border-white/[0.05] bg-[#050505] py-24 text-white">
+      <section className="relative overflow-hidden border-t border-white/[0.05] bg-[#050505] py-32 sm:py-48 text-white">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="mb-12 text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[var(--color-primary)]">
-              Seen In Real Spaces
+          <div className="mb-16 text-center">
+            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--color-primary)]">
+              Field Reports
             </p>
-            <h2 className="mt-3 text-3xl font-black uppercase tracking-tight sm:text-5xl">
-              Collector <span className="text-[#555]">Installations</span>
+            <h2 className="mt-5 text-4xl font-black uppercase tracking-tighter sm:text-6xl">
+              Collector <span className="text-[#222]">Installations</span>
             </h2>
           </div>
           
@@ -431,19 +433,20 @@ export default async function Home() {
       </section>
 
       {/* 6. NEW ARRIVALS */}
-      <section className="relative overflow-hidden border-t border-white/[0.05] bg-[var(--color-surface)] px-5 py-20 sm:px-8">
+      <section className="relative overflow-hidden border-t border-white/[0.05] bg-[var(--color-surface)] px-5 py-32 sm:px-8 sm:py-48">
         <div className="relative z-10 mx-auto max-w-7xl">
-          <div className="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+          <div className="mb-16 flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[var(--color-primary)]">
-                Fresh Drops
+              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--color-primary)]">
+                The Feed
               </p>
-              <h2 className="mt-3 text-4xl font-black uppercase leading-none tracking-tighter text-[var(--color-on-surface)] sm:text-5xl">
-                New <span className="text-[var(--color-secondary)]">Arrivals</span>
+              <h2 className="mt-4 text-4xl font-black uppercase leading-[0.9] tracking-tighter text-[var(--color-on-surface)] sm:text-6xl">
+                New <span className="text-[var(--color-secondary)]">Releases</span>
               </h2>
             </div>
-            <Link href="/shop" className="text-[11px] font-bold uppercase tracking-[0.2em] text-[var(--color-secondary)] hover:text-[var(--color-primary)] transition-colors">
-              Browse Full Catalog &rarr;
+            <Link href="/shop" className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--color-secondary)]/50 hover:text-[var(--color-primary)] transition-all flex items-center gap-2 group">
+              Access Full Catalog 
+              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
             </Link>
           </div>
 
@@ -513,23 +516,24 @@ export default async function Home() {
       </section>
 
       {/* 7. DECALS AS SECONDARY CATEGORY */}
-      <section className="relative overflow-hidden border-t border-white/[0.05] bg-[#0a0a0a] py-20 text-white">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_80%_50%,rgba(204,255,0,0.04),transparent)]" />
+      <section className="relative overflow-hidden border-t border-white/[0.05] bg-[#0a0a0a] py-32 sm:py-48 text-white">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_80%_50%,rgba(204,255,0,0.05),transparent)]" />
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+          <div className="mb-16 flex flex-col items-start justify-between gap-8 md:flex-row md:items-end">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[var(--color-primary)]">
-                Companion Styling
+              <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--color-primary)]">
+                Exterior Elements
               </p>
-              <h2 className="mt-3 text-4xl font-black uppercase leading-none tracking-tighter text-white sm:text-5xl">
-                Rear Windshield <span className="text-[#555]">Decals</span>
+              <h2 className="mt-4 text-4xl font-black uppercase leading-[0.9] tracking-tighter text-white sm:text-6xl">
+                Vehicle <span className="text-[#333]">Decals</span>
               </h2>
-              <p className="mt-3 max-w-xl text-sm text-white/60">
-                Engineered for outdoor durability. High-contrast, weatherproof vinyl statements for your vehicle.
+              <p className="mt-6 max-w-xl text-sm leading-8 text-white/50 sm:text-lg">
+                Weatherproof performance vinyl. Precision statements engineered for high-contrast windshield and chassis application.
               </p>
             </div>
-            <Link href="/shop?category=decals" className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/60 hover:text-[var(--color-primary)] transition-colors">
-              View All Decals &rarr;
+            <Link href="/shop?category=decals" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 hover:text-[var(--color-primary)] transition-all flex items-center gap-2 group">
+              View All Decals
+              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
             </Link>
           </div>
 
@@ -653,21 +657,23 @@ export default async function Home() {
       </section>
 
       {/* 8. BUNDLE / AOV SECTION */}
-      <section className="relative overflow-hidden border-t border-white/[0.05] bg-[var(--color-surface)] py-20">
+      <section className="relative overflow-hidden border-t border-white/[0.05] bg-[var(--color-surface)] py-32 sm:py-48">
         <div className="mx-auto max-w-6xl px-5 sm:px-8">
-          <div className="relative overflow-hidden rounded-[2.5rem] border border-[var(--color-outline-variant)] bg-[var(--color-surface-container-lowest)] p-8 shadow-[0_30px_70px_rgba(0,0,0,0.05)] sm:p-12">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(204,255,0,0.05),transparent_40%)]" />
+          <div className="relative overflow-hidden rounded-[3rem] border border-[var(--color-outline-variant)]/30 bg-[var(--color-surface-container-lowest)] p-10 shadow-[0_30px_80px_rgba(0,0,0,0.04)] sm:p-16 lg:p-24">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(204,255,0,0.05),transparent_45%)]" />
             
-            <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
               <div className="md:col-span-6 max-w-xl">
-                <span className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-container)] px-3 py-1 text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--color-on-primary-fixed)]">
-                  Curated Pairings
+                <span className="inline-flex items-center gap-2 rounded-full bg-[var(--color-primary-container)]/20 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.3em] text-[var(--color-primary)] mb-6 border border-[var(--color-primary)]/10">
+                  Tier Pairings
                 </span>
-                <h2 className="mt-4 text-3xl font-black uppercase tracking-tight text-[var(--color-on-surface)] sm:text-4xl">
-                  Complete The Set
+                <h2 className="text-4xl font-black uppercase leading-[0.9] tracking-tighter text-[var(--color-on-surface)] sm:text-6xl">
+                  Complete 
+                  <br />
+                  The Set
                 </h2>
-                <p className="mt-3 text-sm leading-6 text-[var(--color-secondary)] sm:text-base">
-                  Elevate your space and your machine. Pair our museum-grade automotive prints with precision-cut companion decals for a unified collector aesthetic.
+                <p className="mt-6 text-sm leading-8 text-[var(--color-secondary)] sm:text-lg opacity-90">
+                  Engineered synergies. Pair museum-grade prints with chassis-matched companion decals for a unified automotive aesthetic.
                 </p>
                 <div className="mt-8">
                   <Link href="/shop?category=bundles" className="inline-flex items-center justify-center rounded-full bg-[var(--color-on-background)] px-8 py-4 text-sm font-black uppercase tracking-[0.22em] text-[var(--color-primary-container)] shadow-[0_12px_30px_rgba(0,0,0,0.1)] transition-transform duration-200 hover:-translate-y-0.5">

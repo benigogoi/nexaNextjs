@@ -32,9 +32,9 @@ export default function Footer() {
               alt="NexaDesignLab"
               className="h-10 w-auto mb-5 brightness-0 invert"
             />
-            <p className="text-sm leading-7 text-white/45 max-w-xs">
-              Precision-cut decals and premium framed prints for those who refuse
-              to compromise on their visual environment.
+            <p className="text-sm leading-8 text-white/40 max-w-xs">
+              Precision automotive art and archival series for those who demand
+              excellence in every detail of their visual space.
             </p>
             {/* Social */}
             <div className="mt-6 flex items-center gap-4">
@@ -127,8 +127,8 @@ export default function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-white/[0.06]">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-[11px] text-white/30 uppercase tracking-[0.2em]">
-            © {new Date().getFullYear()} NexaDesignLab Precision Engineering
+          <p className="text-[9px] text-white/20 uppercase tracking-[0.4em] font-medium">
+            © {new Date().getFullYear()} NEXADesignLab / ARCHIVAL SERIES
           </p>
           <div className="flex items-center gap-6">
             <Link href="/about" className="text-[11px] text-white/30 hover:text-white/60 uppercase tracking-[0.18em] transition-colors">
