@@ -87,22 +87,7 @@ export default async function Home() {
         .map(sub => ({ ...sub, parentName: "Posters" }))
     : [];
 
-  const existingNames = posterSubCats.map(c => c.name);
-  
-  if (!existingNames.includes("Automotive Series")) {
-    posterSubCats.push({ id: "auto", name: "Automotive Series", slug: "automotive-series", parentName: "Posters" } as any);
-  }
-  if (!existingNames.includes("Regional Series")) {
-    posterSubCats.push({ id: "regional", name: "Regional Series", slug: "regional-series", parentName: "Posters" } as any);
-  }
-  if (!existingNames.includes("Mindset Series")) {
-    posterSubCats.push({ id: "mindset", name: "Mindset Series", slug: "mindset-series", parentName: "Posters" } as any);
-  }
-  if (!existingNames.includes("Zubeen Garg Posters")) {
-    posterSubCats.push({ id: "zubeen", name: "Zubeen Garg Posters", slug: "zubeen-garg-posters", parentName: "Posters" } as any);
-  }
-
-  const groupedSeries = [
+  const groupedSeries = posterSubCats.length > 0 ? [
     {
       id: postersMainCat?.id || "posters-group",
       name: "Posters",
@@ -117,7 +102,7 @@ export default async function Home() {
         return { ...card, image_url: imageUrl || card.image_url };
       }),
     }
-  ];
+  ] : [];
 
   return (
     <main className="pt-28 md:pt-24 bg-[var(--color-surface)] text-[var(--color-on-surface)]">
@@ -347,7 +332,7 @@ export default async function Home() {
       </section>
 
       {/* 3. COLLECTIONS / SERIES */}
-      <section id="spectrum" className="relative overflow-hidden border-t border-white/[0.03] bg-[var(--color-surface)] py-20 sm:py-24">
+      {groupedSeries.length > 0 && <section id="spectrum" className="relative overflow-hidden border-t border-white/[0.03] bg-[var(--color-surface)] py-20 sm:py-24">
         <div className="mx-auto mb-12 flex max-w-7xl items-end justify-between gap-8 px-5 sm:px-8">
           <div className="flex items-end gap-6">
             <div className="hidden h-16 w-1 shrink-0 rounded-full bg-[var(--color-primary)] sm:block opacity-60" />
@@ -382,7 +367,7 @@ export default async function Home() {
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <CategoryFilmstrip groups={groupedSeries} />
         </div>
-      </section>
+      </section>}
 
       {/* 4. PREMIUM TRUST SECTION */}
       <section className="relative overflow-hidden border-t border-white/[0.03] bg-[#0a0a0a] py-20 sm:py-28 text-white">
