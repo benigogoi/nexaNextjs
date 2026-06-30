@@ -419,29 +419,85 @@ export default async function Home() {
         </section>
       )}
 
+      {/* 5b. COLLECTOR INSTALLATIONS */}
+      <section className="relative overflow-hidden border-t border-white/[0.03] bg-[#050505] py-16 sm:py-24 text-white">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <div className="mb-10 text-center">
+            <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--color-primary)]">Field Reports</p>
+            <h2 className="mt-3 text-3xl font-black uppercase tracking-tighter sm:text-5xl">
+              Collector <span className="text-white/15">Installations</span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 max-w-5xl mx-auto">
+            <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#111] aspect-[4/3] shadow-2xl">
+              <img
+                src="/installation_loft.png"
+                alt="Collector Loft Installation"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+              <div className="absolute bottom-5 left-5">
+                <span className="text-xs font-bold tracking-wider text-white/90">Wall Installation</span>
+              </div>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#111] aspect-[4/3] shadow-2xl">
+              <img
+                src="/installation_office.png"
+                alt="Home Office Installation"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+              <div className="absolute bottom-5 left-5">
+                <span className="text-xs font-bold tracking-wider text-white/90">Home Studio</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 6. COMPLETE THE SET */}
       <section className="relative overflow-hidden border-t border-white/[0.03] bg-[var(--color-surface)] py-16 sm:py-24">
         <div className="mx-auto max-w-6xl px-5 sm:px-8">
           <div className="relative overflow-hidden rounded-[2rem] border border-[var(--color-outline-variant)]/20 bg-[var(--color-surface-container-lowest)] p-8 sm:p-12 lg:p-16">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(204,255,0,0.06),transparent_50%)]" />
-            <div className="relative z-10 flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
-              <div className="max-w-xl">
+            <div className="relative z-10 grid grid-cols-1 gap-10 items-center md:grid-cols-12">
+              <div className="md:col-span-6 max-w-xl">
                 <span className="inline-flex rounded-full border border-[var(--color-primary)]/20 bg-[var(--color-primary)]/10 px-3 py-1 text-[9px] font-black uppercase tracking-[0.3em] text-[var(--color-primary)]">
                   Tier Pairings
                 </span>
                 <h2 className="mt-4 text-3xl font-black uppercase leading-[0.95] tracking-tighter text-[var(--color-on-surface)] sm:text-5xl">
-                  Complete The Set
+                  Complete<br />The Set
                 </h2>
                 <p className="mt-4 text-sm leading-7 text-[var(--color-secondary)] opacity-80">
-                  Pair premium photo prints with complementary designs from the same series — and save on the set.
+                  Pair premium photo prints with complementary designs or different angles from the same release series — and save on the set.
                 </p>
+                <Link
+                  href="/shop?category=bundles"
+                  className="mt-8 inline-flex w-full items-center justify-center rounded-2xl bg-[var(--color-on-background)] px-8 py-4 text-sm font-black uppercase tracking-[0.22em] text-[var(--color-primary-container)] shadow-[0_12px_30px_rgba(0,0,0,0.15)] transition-all duration-300 active:scale-95 hover:-translate-y-0.5 sm:w-auto"
+                >
+                  Shop Bundles
+                </Link>
               </div>
-              <Link
-                href="/shop?category=bundles"
-                className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-[var(--color-on-background)] px-8 py-4 text-sm font-black uppercase tracking-[0.22em] text-[var(--color-primary-container)] shadow-[0_12px_30px_rgba(0,0,0,0.15)] transition-all duration-300 active:scale-95 hover:-translate-y-0.5 w-full md:w-auto"
-              >
-                Shop Bundles
-              </Link>
+
+              <div className="md:col-span-6 flex items-center justify-center relative">
+                <div className="relative w-full max-w-[280px] aspect-[3/4] rounded-[1.5rem] overflow-hidden border border-[var(--color-outline-variant)] bg-black shadow-xl">
+                  <img src="/hero_poster_collectible.png" alt="Premium Poster" className="w-full h-full object-cover opacity-90" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                </div>
+                <div className="absolute -bottom-3 -right-2 sm:-bottom-4 sm:-right-4 w-[160px] sm:w-[200px] aspect-video rounded-[1rem] overflow-hidden border border-white/20 bg-[#0a0a0a] shadow-2xl transform rotate-3">
+                  <div className="absolute inset-0 bg-[#111] flex items-center justify-center">
+                    <span className="text-[10px] font-black text-white/20 tracking-[0.2em] uppercase">Spec Sheet</span>
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                  <div className="absolute bottom-2 left-3">
+                    <span className="text-[8px] font-bold uppercase tracking-wider text-[var(--color-primary)]">Series Companion</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
