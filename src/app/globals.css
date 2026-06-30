@@ -52,7 +52,8 @@
   --color-surface-container: #edeeef;
   --color-on-primary-fixed-variant: #3c4d00;
   
-  --font-inter: var(--font-inter);
+  --font-body: var(--font-body, "Manrope", sans-serif);
+  --font-heading: "Satoshi", var(--font-body), sans-serif;
 }
 
 :root {
@@ -65,7 +66,11 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), sans-serif;
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6, .font-black, .font-bold {
+  font-family: var(--font-heading);
 }
 
 .material-symbols-outlined {
@@ -90,3 +95,7 @@ body {
 #shop-filter-toggle:checked ~ .filter-drawer { transform: translateY(0); }
 .filter-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
 .filter-drawer { transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1); }
+
+/* Hide scrollbar for horizontal-scroll filmstrips */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

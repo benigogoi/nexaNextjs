@@ -54,7 +54,7 @@ function getGroupMeta(name: string): GroupMeta {
   if (normalized === "posters") {
     return {
       eyebrow: "Wall Displays",
-      description: "Framed visual series for interiors that want gallery-scale presence without losing restraint.",
+      description: "Visual series for interiors that want gallery-scale presence without losing restraint.",
       accentClass: "bg-white/60",
       accentTextClass: "text-white/85",
       badgeClass: "border-white/12 bg-white/[0.05] text-white/80",
@@ -298,8 +298,9 @@ function SeriesPanel({
 }
 
 export default function CategoryFilmstrip({ groups }: { groups: FilmstripGroup[] }) {
+  const gridClass = groups.length === 1 ? "grid gap-6 xl:grid-cols-1 xl:gap-8" : "grid gap-6 xl:grid-cols-2 xl:gap-8";
   return (
-    <div className="grid gap-6 xl:grid-cols-2 xl:gap-8">
+    <div className={gridClass}>
       {groups.map((group, index) => (
         <SeriesPanel key={group.id} group={group} groupIndex={index} />
       ))}

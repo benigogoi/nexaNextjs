@@ -3,21 +3,102 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCartStore } from "@/store/useCartStore";
+import { supabase } from "@/lib/supabaseClient";
+import { computeShipping, FREE_SHIPPING_THRESHOLD, amountToFreeShipping } from "@/lib/shipping";
+import { unitPrice } from "@/lib/pricing";
 
 export default function CartPage() {
   const items = useCartStore((s) => s.items);
+  const addItem = useCartStore((s) => s.addItem);
   const removeItem = useCartStore((s) => s.removeItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const updateItem = useCartStore((s) => s.updateItem);
   const getSubtotal = useCartStore((s) => s.getSubtotal);
 
   // Avoid hydration mismatch — render nothing cart-specific until client mounts
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  // Cross-sell: a small pool of active products to suggest in the cart
+  const [suggestionPool, setSuggestionPool] = useState<any[]>([]);
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const { data } = await supabase
+        .from("products")
+        .select("id, name, base_price, image_url, is_bundle, category_type")
+        .eq("status", "Active")
+        .eq("bundle_only", false)
+        .limit(12);
+      if (active && data) setSuggestionPool(data);
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Variants for items currently in the cart, so size/finish can be edited inline.
+  const [variantsByProduct, setVariantsByProduct] = useState<Record<string, any>>({});
+  const productKey = [...new Set(items.map((i) => i.productId))].sort().join(",");
+  useEffect(() => {
+    const ids = productKey ? productKey.split(",") : [];
+    if (ids.length === 0) {
+      setVariantsByProduct({});
+      return;
+    }
+    let active = true;
+    (async () => {
+      const { data } = await supabase
+        .from("products")
+        .select("id, base_price, variants")
+        .in("id", ids);
+      if (active && data) {
+        const map: Record<string, any> = {};
+        data.forEach((p: any) => {
+          map[p.id] = p;
+        });
+        setVariantsByProduct(map);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [productKey]);
+
   const subtotal = mounted ? getSubtotal() : 0;
-  // Free shipping above ₹499, else flat ₹49
-  const shipping = subtotal > 499 ? 0 : subtotal > 0 ? 49 : 0;
+  const shipping = computeShipping(subtotal);
   const total = subtotal + shipping;
+  const remainingForFreeShipping = amountToFreeShipping(subtotal);
+
+  const cartProductIds = new Set(items.map((i) => i.productId));
+  const suggestions = suggestionPool
+    .filter((p) => !p.is_bundle && !cartProductIds.has(p.id))
+    .slice(0, 4);
+
+  // Quick-add a suggestion at its base (A4 / Matte) price — matches the product page's
+  // default cart-id scheme so it merges if the same A4/Matte item is added again.
+  function handleQuickAdd(p: any) {
+    const isPoster = p.category_type === "poster" || !p.category_type;
+    addItem({
+      id: isPoster ? `${p.id}-A4-Matte` : p.id,
+      productId: p.id,
+      name: p.name,
+      price: Number(p.base_price),
+      quantity: 1,
+      image_url: p.image_url || "",
+      ...(isPoster ? { size: "A4", finish: "Matte" } : {}),
+    });
+  }
+
+  function changeSize(item: any, newSize: string) {
+    const product = variantsByProduct[item.productId];
+    const price = product ? unitPrice(product, newSize) : item.price;
+    updateItem(item.id, { size: newSize, price });
+  }
+
+  function changeFinish(item: any, newFinish: string) {
+    updateItem(item.id, { finish: newFinish });
+  }
 
   return (
     <main className="min-h-screen bg-[var(--color-surface)] pt-32 pb-24 px-5 sm:px-8">
@@ -99,14 +180,45 @@ export default function CartPage() {
                             {item.name}
                           </h3>
                           {item.size && (
-                            <span className="text-[10px] font-bold text-[var(--color-secondary)] uppercase tracking-widest mt-1 block">
-                              Size: {item.size}
-                            </span>
+                            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                              <span className="text-[9px] font-black uppercase tracking-widest text-[var(--color-secondary)] mr-1">Size</span>
+                              {(variantsByProduct[item.productId]?.variants?.length
+                                ? variantsByProduct[item.productId].variants.filter((v: any) => !String(v.size).toUpperCase().includes("A3+"))
+                                : [{ size: item.size }]
+                              ).map((v: any) => (
+                                <button
+                                  key={v.size}
+                                  type="button"
+                                  onClick={() => changeSize(item, v.size)}
+                                  className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-wider border transition-colors ${
+                                    item.size === v.size
+                                      ? "bg-[var(--color-primary-container)] text-[var(--color-on-background)] border-[var(--color-primary-container)]"
+                                      : "border-[var(--color-outline-variant)]/30 text-[var(--color-on-surface)] hover:border-[var(--color-primary-container)]/50"
+                                  }`}
+                                >
+                                  {v.size}
+                                </button>
+                              ))}
+                            </div>
                           )}
                           {item.finish && (
-                            <span className="text-[10px] font-bold text-[var(--color-secondary)] uppercase tracking-widest mt-0.5 block">
-                              Finish: {item.finish}
-                            </span>
+                            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                              <span className="text-[9px] font-black uppercase tracking-widest text-[var(--color-secondary)] mr-1">Finish</span>
+                              {["Matte", "Glossy"].map((f) => (
+                                <button
+                                  key={f}
+                                  type="button"
+                                  onClick={() => changeFinish(item, f)}
+                                  className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-wider border transition-colors ${
+                                    item.finish === f
+                                      ? "bg-[var(--color-primary-container)] text-[var(--color-on-background)] border-[var(--color-primary-container)]"
+                                      : "border-[var(--color-outline-variant)]/30 text-[var(--color-on-surface)] hover:border-[var(--color-primary-container)]/50"
+                                  }`}
+                                >
+                                  {f}
+                                </button>
+                              ))}
+                            </div>
                           )}
                         </div>
                         <button
@@ -150,6 +262,56 @@ export default function CartPage() {
                 ))}
               </div>
             )}
+
+            {/* Cross-sell: Complete your wall */}
+            {mounted && items.length > 0 && suggestions.length > 0 && (
+              <div className="pt-4">
+                <div className="flex flex-col items-start gap-2 mb-6 sm:flex-row sm:items-center sm:gap-4">
+                  <h2 className="text-sm font-black uppercase tracking-[0.2em] text-[var(--color-on-surface)] whitespace-nowrap">Complete your wall</h2>
+                  <div className="hidden sm:block h-px flex-1 bg-[var(--color-outline-variant)]/30" />
+                  {remainingForFreeShipping > 0 && (
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[var(--color-primary)]">
+                      Add ₹{remainingForFreeShipping} more → FREE shipping
+                    </span>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {suggestions.map((p) => (
+                    <div
+                      key={p.id}
+                      className="group rounded-3xl bg-[var(--color-surface-container-lowest)] border border-[var(--color-outline-variant)]/20 hover:border-[var(--color-primary-container)] overflow-hidden transition-all duration-500 hover:shadow-xl hover:shadow-black/[0.04]"
+                    >
+                      <Link href={`/products/${p.id}`} className="block aspect-square overflow-hidden bg-[var(--color-surface-container-low)]">
+                        {p.image_url ? (
+                          <img src={p.image_url} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="material-symbols-outlined text-[32px] opacity-10">image</span>
+                          </div>
+                        )}
+                      </Link>
+                      <div className="p-4">
+                        <Link href={`/products/${p.id}`} className="block">
+                          <h3 className="text-xs font-black uppercase tracking-tight text-[var(--color-on-surface)] truncate hover:text-[var(--color-primary)] transition-colors">{p.name}</h3>
+                        </Link>
+                        <div className="mt-2 flex items-center justify-between">
+                          <span className="text-sm font-black text-[var(--color-on-surface)]">From ₹{Number(p.base_price).toFixed(0)}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleQuickAdd(p)}
+                            title="Add to cart"
+                            aria-label={`Add ${p.name} to cart`}
+                            className="w-9 h-9 -mr-1 flex items-center justify-center rounded-full bg-[var(--color-primary-container)] text-[var(--color-on-background)] hover:scale-110 active:scale-95 transition-transform shadow-sm"
+                          >
+                            <span className="material-symbols-outlined text-[20px]">add</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Right Column: Order Summary */}
@@ -162,13 +324,13 @@ export default function CartPage() {
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--color-on-surface)]">Delivery Progress</h3>
                     <span className="text-[10px] font-black uppercase text-[var(--color-primary)]">
-                      {subtotal >= 499 ? "Unlocked" : `₹${499 - subtotal} more for FREE shipping`}
+                      {remainingForFreeShipping === 0 ? "Unlocked" : `₹${remainingForFreeShipping} more for FREE shipping`}
                     </span>
                   </div>
                   <div className="h-2 bg-[var(--color-surface-container-low)] rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-[var(--color-primary-container)] transition-all duration-1000 ease-out"
-                      style={{ width: `${Math.min((subtotal / 499) * 100, 100)}%` }}
+                      style={{ width: `${Math.min((subtotal / FREE_SHIPPING_THRESHOLD) * 100, 100)}%` }}
                     />
                   </div>
                 </div>

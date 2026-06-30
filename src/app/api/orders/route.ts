@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { computeCartFromDb, couponDiscount } from "@/lib/pricing";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { items, subtotal, shipping, total, customer_name, customer_email, customer_phone, shipping_address, coupon_code, payment_method, payment_status } = body;
+    const { items, customer_name, customer_email, customer_phone, shipping_address, coupon_code, payment_method, payment_status } = body;
 
     // We use a service role client to insert the order safely from the server.
     // This allows unauthenticated guest checkouts to create an order without opening up RLS inserts to anon.
@@ -37,6 +38,9 @@ export async function POST(request: Request) {
       }
     );
     const { data: { user } } = await supabaseAuth.auth.getUser();
+
+    // Recompute totals from authoritative DB prices — never trust client-sent amounts.
+    const { subtotal, shipping } = await computeCartFromDb(supabaseAdmin, items);
 
     let appliedCouponData = null;
     if (coupon_code) {
@@ -72,6 +76,9 @@ export async function POST(request: Request) {
 
       appliedCouponData = coupon;
     }
+
+    const discount = couponDiscount(subtotal, appliedCouponData);
+    const total = Math.max(0, subtotal + shipping - discount);
 
     const { data, error } = await supabaseAdmin
       .from("orders")

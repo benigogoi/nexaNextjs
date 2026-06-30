@@ -5,7 +5,6 @@ import nexaLogo from "../../../public/nexaLogo.png";
 const LINKS = {
   shop: [
     { label: "All Products", href: "/shop" },
-    { label: "Decals", href: "/shop?category=decals" },
     { label: "Posters", href: "/shop?category=posters" },
   ],
   company: [
@@ -33,8 +32,7 @@ export default function Footer() {
               className="h-10 w-auto mb-5 brightness-0 invert"
             />
             <p className="text-sm leading-8 text-white/40 max-w-xs">
-              Precision automotive art and archival series for those who demand
-              excellence in every detail of their visual space.
+              Premium posters and collectible wall art designed for people who care about what they display.
             </p>
             {/* Social */}
             <div className="mt-6 flex items-center gap-4">
@@ -128,7 +126,7 @@ export default function Footer() {
       <div className="border-t border-white/[0.06]">
         <div className="mx-auto max-w-7xl px-5 sm:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-[9px] text-white/20 uppercase tracking-[0.4em] font-medium">
-            © {new Date().getFullYear()} NEXADesignLab / ARCHIVAL SERIES
+            © {new Date().getFullYear()} NEXADesignLab
           </p>
           <div className="flex items-center gap-6">
             <Link href="/about" className="text-[11px] text-white/30 hover:text-white/60 uppercase tracking-[0.18em] transition-colors">

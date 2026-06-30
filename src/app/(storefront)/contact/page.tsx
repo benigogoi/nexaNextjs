@@ -54,7 +54,7 @@ export default function ContactPage() {
               <h3 className="text-sm font-black uppercase tracking-widest">Rapid Response</h3>
             </div>
             <p className="text-[var(--color-secondary)] text-sm leading-relaxed mb-6">
-              For immediate technical support or quick consultation regarding decal measurements and fitment.
+              For immediate support or quick questions about product sizes, finishes, and orders.
             </p>
             <Link className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.15em] border-b-2 border-primary-container pb-1" href="#">
               Connect via WhatsApp

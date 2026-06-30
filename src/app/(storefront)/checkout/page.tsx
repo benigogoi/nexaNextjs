@@ -8,6 +8,7 @@ import { useCartStore } from "@/store/useCartStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { supabase } from "@/lib/supabaseClient";
 import { loadRazorpay } from "@/lib/loadRazorpay";
+import { computeShipping, amountToFreeShipping } from "@/lib/shipping";
 
 function CheckoutContent() {
   const router = useRouter();
@@ -172,7 +173,7 @@ function CheckoutContent() {
   };
 
   const cartSubtotal = mounted ? checkoutItems.reduce((acc, item) => acc + item.price * item.quantity, 0) : 0;
-  const shipping = cartSubtotal > 499 ? 0 : cartSubtotal > 0 ? 49 : 0;
+  const shipping = computeShipping(cartSubtotal);
   const discountAmount = appliedCoupon
     ? (appliedCoupon.type === "percentage"
       ? cartSubtotal * (appliedCoupon.discount / 100)
@@ -209,7 +210,7 @@ function CheckoutContent() {
       const rzpOrderResponse = await fetch("/api/razorpay/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: total }),
+        body: JSON.stringify({ items: checkoutItems, coupon_code: appliedCoupon?.code || null }),
       });
 
       const rzpOrderData = await rzpOrderResponse.json();
@@ -218,9 +219,9 @@ function CheckoutContent() {
       // 3. Configure Razorpay Options
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: Math.round(total * 100),
+        amount: Math.round((rzpOrderData.amount ?? total) * 100),
         currency: "INR",
-        name: "Nexa Design Lab",
+        name: "NexaDesignLab",
         description: "Payment for your order",
         order_id: rzpOrderData.orderId,
         handler: async function (response: any) {
@@ -379,7 +380,7 @@ function CheckoutContent() {
 
   return (
     <main className="max-w-[1440px] mx-auto pt-32 pb-24 px-5 sm:px-8 min-h-screen text-[var(--color-on-surface)] relative">
-      <AuthModal isOpen={showAuthModal} onClose={() => user ? setShowAuthModal(false) : router.push('/shop')} />
+      <AuthModal isOpen={showAuthModal} onClose={() => user ? setShowAuthModal(false) : router.push('/shop')} redirectTo={`/checkout${isBuyNow ? "?buyNow=true" : ""}`} />
 
       <div className={`grid grid-cols-1 lg:grid-cols-3 gap-12 transition-all duration-500 ${!user ? 'blur-md grayscale pointer-events-none opacity-40 scale-[0.98]' : ''}`}>
         <div className="lg:col-span-2 space-y-12">
@@ -655,6 +656,21 @@ function CheckoutContent() {
                   {shipping === 0 ? "Free" : `₹${shipping}`}
                 </span>
               </div>
+              {shipping > 0 && (
+                <div className="flex flex-wrap items-center justify-between gap-2 p-3 my-1 rounded-xl bg-[var(--color-primary-container)]/15 border border-[var(--color-primary-container)]/40">
+                  <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-[var(--color-primary)] leading-tight">
+                    <span className="material-symbols-outlined text-[16px]">local_shipping</span>
+                    Add ₹{amountToFreeShipping(cartSubtotal)} more for FREE shipping
+                  </span>
+                  <Link
+                    href="/shop"
+                    className="shrink-0 inline-flex items-center gap-1 bg-[var(--color-primary-container)] text-[var(--color-on-background)] px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:-translate-y-0.5 hover:shadow-md transition-all whitespace-nowrap"
+                  >
+                    Add more
+                    <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                  </Link>
+                </div>
+              )}
               {appliedCoupon && (
                 <div className="flex justify-between items-center text-sm text-green-600 font-bold pb-4 border-b border-[var(--color-outline-variant)]/30">
                   <span>Discount ({appliedCoupon.type === 'percentage' ? `${appliedCoupon.discount}%` : 'Flat'})</span>

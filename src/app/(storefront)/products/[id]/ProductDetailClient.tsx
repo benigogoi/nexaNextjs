@@ -6,6 +6,11 @@ import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/useCartStore";
 import PincodeChecker from "@/components/PincodeChecker";
 
+// Product names in the DB may carry an SEO suffix after a "|" (e.g. "Name | Classic Portrait Poster").
+// Strip it for on-page display; metadata still uses the full name.
+function displayName(name?: string | null): string {
+  return (name || "").split("|")[0].trim();
+}
 
 interface Product {
   id: string;
@@ -97,6 +102,12 @@ export default function ProductDetailClient({
   // Keep a plain urls list for cart thumbnail (first cover or first item)
   const firstImageUrl = slides[0]?.url ?? "";
 
+  // Sizes not currently stocked (kept in sync with admin ENABLE_A3PLUS).
+  const isVisibleSize = (size: unknown) => !String(size).toUpperCase().includes("A3+");
+  const visibleVariants = Array.isArray(product.variants)
+    ? product.variants.filter((v: any) => isVisibleSize(v.size))
+    : [];
+
   const [activeImg, setActiveImg] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [floatingToast, setFloatingToast] = useState(false);
@@ -105,31 +116,15 @@ export default function ProductDetailClient({
     if (product.is_bundle && product.default_size) {
       return product.default_size;
     }
-    if (Array.isArray(product.variants) && product.variants.length > 0) {
-      return product.variants[0].size;
+    if (visibleVariants.length > 0) {
+      return visibleVariants[0].size;
     }
     return "A4";
   });
   const [selectedFinish, setSelectedFinish] = useState("Matte");
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
 
-  const isDecal = (() => {
-    // 1. Check direct product columns
-    if (product.category_type === 'decal' || product.category_type === 'sticker') return true;
-    if (product.parent_category?.toLowerCase().includes("decal") || product.parent_category?.toLowerCase().includes("sticker")) return true;
-
-    // 2. Check category record type
-    const type = categoryRecord?.category_type || categoryRecord?.parent?.category_type;
-    if (type === 'decal' || type === 'sticker') return true;
-
-    // 3. Fallback to string matching
-    const catName = (categoryRecord?.name || product.category || "").toLowerCase();
-    const prodName = (product.name || "").toLowerCase();
-    if (catName.includes("decal") || catName.includes("sticker")) return true;
-    if (prodName.includes("decal") || prodName.includes("sticker")) return true;
-
-    return false;
-  })();
+  const isDecal = false;
 
   const isPoster = (() => {
     // If it's a decal, it's definitely not a poster
@@ -153,18 +148,12 @@ export default function ProductDetailClient({
   })();
   
   const posterBadges = [
-    { icon: "🖼️", label: "Museum-Grade", sub: "200gsm heavy stock" },
-    { icon: "🎨", label: "Archival Inks", sub: "Deep pigment quality" },
-    { icon: "📐", label: "Frame Ready", sub: "True sizing metrics" },
-    { icon: "☀️", label: "Fade Resistant", sub: "UV protective shield" },
+    { icon: "🖼️", label: "Photo-Quality", sub: "Premium photo paper" },
+    { icon: "🎨", label: "Vivid Color", sub: "6-color photo printing" },
+    { icon: "📌", label: "Peel & Stick", sub: "Adhesive backing" },
+    { icon: "📦", label: "Ships Protected", sub: "Secure flat packaging" },
   ];
-  const decalBadges = [
-    { icon: "💧", label: "Weatherproof", sub: "UV-resistant vinyl" },
-    { icon: "⚡", label: "Easy Install", sub: "Bubble-free design" },
-    { icon: "🛡️", label: "Long Lasting", sub: "5+ year adhesive" },
-    { icon: "✂️", label: "Precision Cut", sub: "True vector outline" },
-  ];
-  const trustBadges = isPoster ? posterBadges : decalBadges;
+  const trustBadges = posterBadges;
 
   let currentPrice = Number(product.base_price);
   if (Array.isArray(product.variants)) {
@@ -219,8 +208,7 @@ export default function ProductDetailClient({
       ...((isPoster || isDecal) ? { size: selectedSize } : {}),
       ...(isPoster ? { finish: selectedFinish } : {}),
     });
-    setFloatingToast(true);
-    setTimeout(() => setFloatingToast(false), 1800);
+    router.push("/cart");
   }
 
   function handleBuyNow() {
@@ -254,7 +242,7 @@ export default function ProductDetailClient({
             Shop
           </Link>
           <span>/</span>
-          <span className="text-[var(--color-on-surface)] truncate max-w-[200px]">{product.name}</span>
+          <span className="text-[var(--color-on-surface)] truncate max-w-[200px]">{displayName(product.name)}</span>
         </nav>
 
         {/* ─── PRODUCT GRID ──────────────────────────────────── */}
@@ -273,7 +261,7 @@ export default function ProductDetailClient({
                   key={activeImg}
                   src={activeSlide.url}
                   alt={activeSlide.type === "item" ? activeSlide.name : product.name}
-                  className="h-full w-full object-contain bg-[#0e0e10] scale-110 transition-transform duration-300"
+                  className="h-full w-full object-contain bg-[#0e0e10] transition-transform duration-300"
                   style={{ animation: "fadeIn 0.25s ease" }}
                 />
               ) : (
@@ -398,7 +386,7 @@ export default function ProductDetailClient({
                 {product.is_bundle ? `${bundleItems.length} item${bundleItems.length !== 1 ? "s" : ""} included` : product.category}
               </p>
               <h1 className="text-[clamp(1.5rem,3.5vw,2.5rem)] font-black uppercase leading-[0.95] tracking-[-0.04em] text-[var(--color-on-surface)]">
-                {product.is_bundle && product.hero_headline ? product.hero_headline : product.name}
+                {product.is_bundle && product.hero_headline ? product.hero_headline : displayName(product.name)}
               </h1>
               {product.is_bundle && bundleItems.length > 0 ? (() => {
                 const retailTotal = bundleItems.reduce((s, item) => s + Number(item.price) * item.quantity, 0);
@@ -438,13 +426,13 @@ export default function ProductDetailClient({
             <div className="p-6 rounded-[1.5rem] border border-[var(--color-outline-variant)]/30 bg-[var(--color-surface-container-lowest)]/40 backdrop-blur-sm flex flex-col gap-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)]">
               
               {/* Sizing Selector */}
-              {(isPoster || isDecal) && product.variants && product.variants.length > 0 && (
+              {(isPoster || isDecal) && visibleVariants.length > 0 && (
                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--color-secondary)] block">
                     {isPoster ? "Select Poster Size" : "Select Decal Size"}
                   </label>
                   <div className="grid grid-cols-3 gap-2">
-                    {product.variants.map((variant: any) => (
+                    {visibleVariants.map((variant: any) => (
                       <button
                         key={variant.size}
                         type="button"
@@ -625,17 +613,17 @@ export default function ProductDetailClient({
                 </details>
               )}
 
-              {/* Shipping & Framing Accordion */}
+              {/* Shipping & Handling Accordion */}
               <details className="group border-b border-[var(--color-outline-variant)]/30 pb-3">
                 <summary className="flex justify-between items-center font-black text-xs uppercase tracking-[0.2em] text-[var(--color-on-surface)] cursor-pointer select-none">
-                  <span>Shipping & Framing</span>
+                  <span>Shipping & Handling</span>
                   <span className="material-symbols-outlined transition-transform duration-300 group-open:rotate-180">expand_more</span>
                 </summary>
                 <div className="mt-3 text-xs leading-relaxed text-[var(--color-secondary)] space-y-2 font-medium">
-                  <p>All prints are carefully rolled in heavy-duty protective tubes for transit. A4 sizes ship in flat rigid mailers.</p>
+                  <p>Every poster is printed fresh for your order and packaged securely to protect it in transit.</p>
                   <p>Standard shipping is free across India. Delivery takes 5-7 business days depending on location.</p>
                   {isPoster && (
-                    <p>Optional framing uses museum-grade lightweight acrylic instead of heavy glass, reducing breakage. Premium matte black wood provides an elegant presentation.</p>
+                    <p>Posters come with an adhesive backing — just peel and stick, no frame or tools needed.</p>
                   )}
                 </div>
               </details>
@@ -644,9 +632,9 @@ export default function ProductDetailClient({
             {/* Trust Badges - 3 badges */}
             <div className="grid grid-cols-3 gap-2 mt-3">
               {[
-                { icon: "🖼️", label: "Museum Grade", sub: "200gsm heavy stock" },
-                { icon: "🎨", label: "Archival Inks", sub: "Deep pigment quality" },
-                { icon: "📐", label: "Frame Ready", sub: "True sizing metrics" }
+                { icon: "🖼️", label: "Photo-Quality", sub: "Premium photo paper" },
+                { icon: "🎨", label: "Vivid Color", sub: "6-color photo printing" },
+                { icon: "📌", label: "Peel & Stick", sub: "Adhesive backing" }
               ].map((b) => (
                 <div
                   key={b.label}
@@ -748,7 +736,7 @@ export default function ProductDetailClient({
                 return (
                   <Link
                     key={rel.id}
-                    href={`/products/${rel.id}`}
+                    href={`/posters/${rel.url_slug || rel.id}`}
                     className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-[var(--color-outline-variant)]/30 bg-[var(--color-surface-container-lowest)] shadow-[0_12px_40px_rgba(0,0,0,0.04)] transition-all duration-500 hover:-translate-y-2 hover:border-[var(--color-primary)]/20 hover:shadow-[0_32px_64px_rgba(0,0,0,0.08)]"
                   >
                     {/* Image */}
@@ -777,7 +765,7 @@ export default function ProductDetailClient({
                     {/* Footer */}
                     <div className="flex flex-col flex-1 gap-3 p-4 sm:p-5 bg-[var(--color-surface-container-lowest)]">
                       <h3 className="text-sm font-black leading-tight tracking-tight text-[var(--color-on-surface)] group-hover:text-[var(--color-primary)] transition-colors line-clamp-1">
-                        {rel.name}
+                        {displayName(rel.name)}
                       </h3>
                       
                       <div className="mt-auto flex items-center justify-between pt-3 border-t border-[var(--color-outline-variant)]/20">
@@ -859,13 +847,6 @@ export default function ProductDetailClient({
                       <span className="text-[8px] font-bold text-white/50">12 × 18 in</span>
                     </div>
 
-                    {/* A3+ */}
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="w-20 h-28 border-2 border-[#ccff00] bg-[#111] flex items-center justify-center rounded shadow-2xl shadow-[#ccff00]/20">
-                        <span className="text-[10px] font-black text-[#ccff00]">A3+</span>
-                      </div>
-                      <span className="text-[8px] font-bold text-white/50">13 × 19 in</span>
-                    </div>
                   </div>
                 </div>
 
@@ -874,7 +855,6 @@ export default function ProductDetailClient({
                   {[
                     { size: "A4", usage: "Compact spaces", desc: "Ideal for narrow entryways, desktop setups, or grouped in multi-frame collage walls." },
                     { size: "A3", usage: "Balanced wall display", desc: "Excellent sweet spot for bedrooms, study corners, and everyday personal styling." },
-                    { size: "A3+", usage: "Statement wall piece", desc: "A bold footprint optimized for large living rooms, creative studios, and standalone showcases." },
                   ].map((item) => (
                     <div key={item.size} className="p-4 rounded-xl border border-[var(--color-outline-variant)]/30 bg-[var(--color-surface-container-low)]">
                       <div className="flex items-center gap-2 mb-2">

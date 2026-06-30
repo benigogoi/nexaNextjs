@@ -19,6 +19,7 @@ interface CartState {
   setBuyNowItem: (item: CartItem | null) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
+  updateItem: (id: string, patch: Partial<CartItem>) => void;
   clearCart: () => void;
   getTotalItems: () => number;
   getSubtotal: () => number;
@@ -54,6 +55,30 @@ export const useCartStore = create<CartState>()(
             i.id === id ? { ...i, quantity: Math.max(1, quantity) } : i
           ),
         }));
+      },
+      updateItem: (id, patch) => {
+        set((state) => {
+          const idx = state.items.findIndex((i) => i.id === id);
+          if (idx === -1) return state;
+
+          const updated = { ...state.items[idx], ...patch };
+          // Re-derive the composite cart id (matches the product page scheme) so the
+          // line stays consistent after a size/finish change.
+          updated.id = updated.size
+            ? `${updated.productId}-${String(updated.size).replace(/\s+/g, "")}${updated.finish ? `-${updated.finish}` : ""}`
+            : updated.productId;
+
+          const items = [...state.items];
+          const dupeIdx = items.findIndex((i, k) => k !== idx && i.id === updated.id);
+          if (dupeIdx !== -1) {
+            // Same size/finish already in cart — merge quantities and drop the old line.
+            items[dupeIdx] = { ...items[dupeIdx], quantity: items[dupeIdx].quantity + updated.quantity };
+            items.splice(idx, 1);
+          } else {
+            items[idx] = updated;
+          }
+          return { items };
+        });
       },
       clearCart: () => set({ items: [] }),
       getTotalItems: () => {
