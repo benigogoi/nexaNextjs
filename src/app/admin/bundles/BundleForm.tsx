@@ -58,6 +58,9 @@ export default function AdminBundleForm({ defaultValues, categories }: Props) {
   const itemImageRefs = useRef<(HTMLInputElement | null)[]>([]);
   const isEditMode = !!defaultValues;
 
+  // Match the product form: A4/A3 only until A3+ paper is stocked.
+  const ENABLE_A3PLUS = false;
+
   const [loading, setLoading] = useState(false);
 
   // The inline bundle items
@@ -849,21 +852,23 @@ export default function AdminBundleForm({ defaultValues, categories }: Props) {
                     </div>
                   </div>
 
+                  {ENABLE_A3PLUS && (
                   <div className="space-y-2">
                     <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#808080]">A3+ Bundle Price</label>
                     <div className="relative">
                       <span className="absolute left-0 top-1/2 -translate-y-1/2 text-[#808080] font-mono px-3">₹</span>
-                      <input 
-                        type="number" 
+                      <input
+                        type="number"
                         name="a3PlusPrice"
                         value={formData.a3PlusPrice}
                         onChange={handleInputChange}
                         step="0.01" min="0"
-                        className="w-full bg-[#121212] border border-[#333333] focus:border-[#ccff00] focus:ring-0 pl-8 px-3 py-2 text-white transition-colors font-mono text-sm" 
-                        placeholder="0.00" 
+                        className="w-full bg-[#121212] border border-[#333333] focus:border-[#ccff00] focus:ring-0 pl-8 px-3 py-2 text-white transition-colors font-mono text-sm"
+                        placeholder="0.00"
                       />
                     </div>
                   </div>
+                  )}
                 </div>
               </div>
             </div>

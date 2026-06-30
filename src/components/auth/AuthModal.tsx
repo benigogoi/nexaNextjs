@@ -83,7 +83,7 @@ export default function AuthModal({ isOpen, onClose, redirectTo }: AuthModalProp
             <h2 className="text-3xl font-black uppercase tracking-tighter text-[var(--color-on-surface)] mb-2">
               {isSignUp ? "Create Account" : "Welcome Back"}
             </h2>
-            <p className="text-[10px] text-[var(--color-secondary)] uppercase font-black tracking-[0.3em]">NexaPrint Storefront</p>
+            <p className="text-[10px] text-[var(--color-secondary)] uppercase font-black tracking-[0.3em]">NexaDesignLab Storefront</p>
           </header>
 
           <div className="grid grid-cols-2 gap-4 mb-8">

@@ -56,7 +56,7 @@ function OrderSuccessContent() {
             Order Confirmed
           </h1>
           <p className="text-[var(--color-secondary)] text-base font-medium max-w-md mx-auto">
-            Thanks for shopping with NexaPrint, {order.customer_name.split(' ')[0]}! Your order is being processed.
+            Thanks for shopping with NexaDesignLab, {order.customer_name.split(' ')[0]}! Your order is being processed.
           </p>
         </div>
       </section>

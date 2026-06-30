@@ -3,17 +3,22 @@ import Link from "next/link";
 import CategoryFilmstrip from "@/components/CategoryFilmstrip";
 import { createServerSupabaseClient } from "@/lib/supabaseServer";
 
+// Product names may carry an SEO suffix after a "|" — strip it for card display
+function getProductDisplayName(name?: string | null) {
+  return (name || "").split("|")[0].trim();
+}
+
 export const revalidate = 0;
 
 export const metadata = {
-  title: "Premium Wall Posters & Collectible Art Prints | NexaPrint",
-  description: "Elevate your space with museum-grade framed posters and archival quality collectible art prints. Premium automotive posters and rear windshield decals across India.",
-  keywords: "premium wall posters, collectible art prints, framed posters India, automotive posters, rear windshield decals",
+  title: "Premium Wall Posters & Art Prints | NexaDesignLab",
+  description: "Elevate your space with professional photo-quality posters and art prints. Automotive, Northeast India, motivational and collector-inspired designs shipped across India.",
+  keywords: "premium wall posters, art prints India, photo quality posters, automotive posters, Northeast India posters",
   openGraph: {
-    title: "Premium Wall Posters & Collectible Art Prints | NexaPrint",
-    description: "Museum-grade framed posters and archival quality collectible art prints.",
+    title: "Premium Wall Posters & Art Prints | NexaDesignLab",
+    description: "Professional photo-quality posters and art prints shipped across India.",
     type: "website",
-    url: "https://nexaprint.in",
+    url: "https://nexadesignlab.com",
   }
 };
 
@@ -21,7 +26,13 @@ export default async function Home() {
   const supabase = await createServerSupabaseClient();
 
   const { data: dbCategories } = await supabase.from("categories").select("*").order("name");
-  const visibleCategories = dbCategories?.filter((category) => category.is_visible !== false) || [];
+  const visibleCategories = dbCategories?.filter((category) => 
+    category.is_visible !== false && 
+    category.category_type !== 'decal' && 
+    category.category_type !== 'sticker' &&
+    !category.name.toLowerCase().includes("decal") &&
+    !category.name.toLowerCase().includes("sticker")
+  ) || [];
   const mainCats = visibleCategories.filter((category) => !category.parent_id);
 
   const { data: dbProducts } = await supabase
@@ -48,27 +59,65 @@ export default async function Home() {
     (!p.category_type && !p.parent_category && (p.category?.toLowerCase().includes("decal") || p.category?.toLowerCase().includes("sticker")))
   );
 
-  const bestsellers = posters.slice(0, 4);
-  const latestProducts = posters.slice(0, 4); 
-  const featuredDecals = decals.slice(0, 4);
-
-  const allSubCats = visibleCategories.filter((category) => category.parent_id);
+  // Curated bestsellers (balanced mix of categories: Automotive-themed, Northeast, Motivational, Zubeen)
+  const bestsellerSkus = ['NX-PT-MS-005', 'NX-PF-ZG-002', 'NX-PT-MS-004', 'NX-PF-ZG-004'];
+  const bestsellers = bestsellerSkus
+    .map(sku => posters.find(p => p.sku === sku))
+    .filter(Boolean);
   
-  // Sort categories to put Posters first
-  const sortedMainCats = [...mainCats].sort((a, b) => {
-    if (a.name.toLowerCase().includes("poster")) return -1;
-    if (b.name.toLowerCase().includes("poster")) return 1;
-    return 0;
-  });
+  if (bestsellers.length < 4) {
+    const fallbackBestsellers = posters.filter(p => !bestsellers.some(b => b.id === p.id)).slice(0, 4 - bestsellers.length);
+    bestsellers.push(...fallbackBestsellers);
+  }
 
-  const groupedSeries = sortedMainCats
-    .map((main) => ({
-      ...main,
-      cards: allSubCats
-        .filter((sub) => sub.parent_id === main.id)
-        .map((sub) => ({ ...sub, parentName: main.name })),
-    }))
-    .filter((group) => group.cards.length > 0);
+  // New Releases: Exclude bestsellers to eliminate duplication
+  const bestsellersIds = new Set(bestsellers.map(p => p.id));
+  const latestProducts = posters
+    .filter(p => !bestsellersIds.has(p.id))
+    .slice(0, 4);
+
+  const allSubCats = visibleCategories.filter((category) => category.parent_id).filter((sub) =>
+    posters.some((p) => p.category === sub.name)
+  );
+  
+  const postersMainCat = mainCats.find(c => c.name.toLowerCase() === "posters");
+  const posterSubCats = postersMainCat 
+    ? allSubCats
+        .filter(sub => sub.parent_id === postersMainCat.id)
+        .map(sub => ({ ...sub, parentName: "Posters" }))
+    : [];
+
+  const existingNames = posterSubCats.map(c => c.name);
+  
+  if (!existingNames.includes("Automotive Series")) {
+    posterSubCats.push({ id: "auto", name: "Automotive Series", slug: "automotive-series", parentName: "Posters" } as any);
+  }
+  if (!existingNames.includes("Regional Series")) {
+    posterSubCats.push({ id: "regional", name: "Regional Series", slug: "regional-series", parentName: "Posters" } as any);
+  }
+  if (!existingNames.includes("Mindset Series")) {
+    posterSubCats.push({ id: "mindset", name: "Mindset Series", slug: "mindset-series", parentName: "Posters" } as any);
+  }
+  if (!existingNames.includes("Zubeen Garg Posters")) {
+    posterSubCats.push({ id: "zubeen", name: "Zubeen Garg Posters", slug: "zubeen-garg-posters", parentName: "Posters" } as any);
+  }
+
+  const groupedSeries = [
+    {
+      id: postersMainCat?.id || "posters-group",
+      name: "Posters",
+      slug: "posters",
+      cards: posterSubCats.map(card => {
+        let imageUrl = "";
+        if (card.name.includes("Automotive")) imageUrl = "/collections/card_automotive.png";
+        else if (card.name.includes("Regional") || card.name.includes("Northeast")) imageUrl = "/collections/card_regional.png";
+        else if (card.name.includes("Mindset") || card.name.includes("Motivational")) imageUrl = "/collections/card_mindset.png";
+        else if (card.name.includes("Zubeen")) imageUrl = "/collections/card_zubeen.png";
+        
+        return { ...card, image_url: imageUrl || card.image_url };
+      }),
+    }
+  ];
 
   return (
     <main className="pt-28 md:pt-24 bg-[var(--color-surface)] text-[var(--color-on-surface)]">
@@ -78,12 +127,12 @@ export default async function Home() {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Organization",
-            "name": "NexaPrint",
-            "url": "https://nexaprint.in",
-            "logo": "https://nexaprint.in/logo.png",
-            "description": "Premium wall posters and collectible art prints for automotive enthusiasts.",
+            "name": "NexaDesignLab",
+            "url": "https://nexadesignlab.com",
+            "logo": "https://nexadesignlab.com/logo.png",
+            "description": "Professional photo-quality posters and art prints for automotive enthusiasts, Northeast India culture, and beyond.",
             "sameAs": [
-              "https://instagram.com/nexaprint"
+              "https://instagram.com/nexadesignlab"
             ]
           })
         }}
@@ -98,7 +147,7 @@ export default async function Home() {
             "itemListElement": bestsellers.map((prod, index) => ({
               "@type": "ListItem",
               "position": index + 1,
-              "url": `https://nexaprint.in/products/${prod.id}`,
+              "url": `https://nexadesignlab.com/posters/${prod.url_slug || prod.id}`,
               "name": prod.name,
               "image": prod.image_url,
             }))
@@ -115,27 +164,27 @@ export default async function Home() {
               <span className="rounded-full border border-[var(--color-outline-variant)]/20 bg-[var(--color-surface-container-highest)]/30 px-3 py-1 text-[var(--color-on-surface)] shadow-sm backdrop-blur-md">
                 Est. 2024
               </span>
-              <span className="text-[var(--color-secondary)] opacity-70">Archival Series</span>
+              <span className="text-[var(--color-secondary)] opacity-70">Design Studio</span>
             </div>
             
             <h1 className="max-w-2xl text-[clamp(2.5rem,5.5vw,4rem)] font-black leading-[0.95] tracking-[-0.05em] text-[var(--color-on-surface)]">
-              Precision Art 
+              Premium Posters
               <br />
               <span className="text-[var(--color-primary)]">
-                For The Driven.
+                For What Drives You.
               </span>
             </h1>
             
             <p className="mt-5 max-w-lg text-sm leading-7 text-[var(--color-secondary)] sm:text-base opacity-80">
-              Museum-grade framed prints and precision-cut windshield decals. Engineering the visual legacy of automotive culture into your personal space.
+              Automotive, Northeast India, motivational and collector-inspired designs — printed on premium photo paper and shipped across India.
             </p>
             
             <div className="mt-8 flex flex-col flex-wrap gap-4 sm:flex-row">
               <Link href="/shop?category=posters" className="inline-flex min-w-[210px] w-full items-center justify-center rounded-xl bg-[var(--color-on-background)] px-8 py-4 text-center text-xs font-black uppercase tracking-[0.25em] text-[var(--color-primary-container)] shadow-[0_15px_35px_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(204,255,0,0.15)] sm:w-auto">
                 Shop Posters
               </Link>
-              <Link href="/shop?category=decals" className="inline-flex min-w-[210px] w-full items-center justify-center rounded-xl border border-[var(--color-outline-variant)] bg-[var(--color-surface)]/50 px-8 py-4 text-center text-xs font-black uppercase tracking-[0.25em] text-[var(--color-on-surface)] backdrop-blur-sm transition-all duration-300 hover:bg-[var(--color-surface-container-highest)] hover:-translate-y-1 sm:w-auto">
-                Explore Decals
+              <Link href="/shop" className="inline-flex min-w-[210px] w-full items-center justify-center rounded-xl border border-[var(--color-outline-variant)] bg-[var(--color-surface)]/50 px-8 py-4 text-center text-xs font-black uppercase tracking-[0.25em] text-[var(--color-on-surface)] backdrop-blur-sm transition-all duration-300 hover:bg-[var(--color-surface-container-highest)] hover:-translate-y-1 sm:w-auto">
+                Explore Collections
               </Link>
             </div>
           </div>
@@ -155,24 +204,24 @@ export default async function Home() {
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[8px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur-md border border-white/10">
                     Wall Art
                   </span>
-                  <h3 className="mt-2 text-base font-black text-white tracking-tight uppercase">Archival Pieces</h3>
+                  <h3 className="mt-2 text-base font-black text-white tracking-tight uppercase">Signature Pieces</h3>
                 </div>
               </div>
               
-              {/* Right/Background: Decal */}
-              <div className="group relative w-full max-w-[290px] overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#0e0f10] shadow-[0_25px_50px_rgba(0,0,0,0.5)] transition-all duration-700 hover:shadow-[0_35px_70px_rgba(204,255,0,0.1)] z-20 transform hover:-translate-y-1 sm:-ml-10 sm:mt-10 lg:-ml-14 lg:mt-14">
+              {/* Right/Background: Second Poster */}
+              <div className="group relative w-full max-w-[260px] overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#0e0f10] shadow-[0_25px_50px_rgba(0,0,0,0.5)] transition-all duration-700 hover:shadow-[0_35px_70px_rgba(204,255,0,0.1)] z-20 transform hover:-translate-y-1 sm:-ml-10 sm:mt-10 lg:-ml-14 lg:mt-14">
                 <img 
-                  src="/hero_decal_new.png" 
-                  alt="Rear Windshield Decal" 
-                  className="w-full object-cover aspect-[4/3] transition-transform duration-700 group-hover:scale-[1.04]"
+                  src="/hero_poster_new.png" 
+                  alt="Premium Spec Print"
+                  className="w-full object-cover aspect-[3/4] transition-transform duration-700 group-hover:scale-[1.04]"
                   loading="eager"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
                 <div className="absolute bottom-4 left-4 right-4">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-[8px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur-md border border-white/10">
-                    Automotive
+                    Signature Series
                   </span>
-                  <h3 className="mt-2 text-lg font-black text-white tracking-tight uppercase">Windshield Decals</h3>
+                  <h3 className="mt-2 text-base font-black text-white tracking-tight uppercase">Precision Layouts</h3>
                 </div>
               </div>
             </div>
@@ -193,22 +242,22 @@ export default async function Home() {
         `}} />
         <div className="flex whitespace-nowrap animate-marquee-custom">
           <div className="flex items-center space-x-16 text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mx-8">
-            <span>5000+ Collectors</span>
+            <span>Premium Print Quality</span>
             <span className="h-1 w-1 rounded-full bg-[var(--color-primary)]" />
-            <span>Precision Crafted</span>
+            <span>Vivid Photo Printing</span>
             <span className="h-1 w-1 rounded-full bg-[var(--color-primary)]" />
             <span>Ships Across India</span>
             <span className="h-1 w-1 rounded-full bg-[var(--color-primary)]" />
-            <span>Collector Favorites</span>
+            <span>Glossy & Matte Finish</span>
           </div>
           <div className="flex items-center space-x-16 text-[10px] font-bold uppercase tracking-[0.3em] text-white/40 mx-8" aria-hidden="true">
-            <span>5000+ Collectors</span>
+            <span>Premium Print Quality</span>
             <span className="h-1 w-1 rounded-full bg-[var(--color-primary)]" />
-            <span>Precision Crafted</span>
+            <span>Vivid Photo Printing</span>
             <span className="h-1 w-1 rounded-full bg-[var(--color-primary)]" />
             <span>Ships Across India</span>
             <span className="h-1 w-1 rounded-full bg-[var(--color-primary)]" />
-            <span>Collector Favorites</span>
+            <span>Glossy & Matte Finish</span>
           </div>
         </div>
       </section>
@@ -223,7 +272,7 @@ export default async function Home() {
                 The Standard
               </p>
               <h2 className="mt-3 text-4xl font-black uppercase leading-[0.95] tracking-tighter text-white sm:text-5xl">
-                Bestselling <span className="text-[#222]">Series</span>
+                Bestselling <span className="text-white/15">Series</span>
               </h2>
             </div>
             <Link href="/shop?category=posters" className="text-[10px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-[var(--color-primary)] transition-all flex items-center gap-2 group">
@@ -236,7 +285,7 @@ export default async function Home() {
             {bestsellers.length > 0 ? (
               bestsellers.map((prod, index) => (
                 <Link
-                  href={`/products/${prod.id}`}
+                  href={`/posters/${prod.url_slug || prod.id}`}
                   key={prod.id}
                   className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#111] shadow-[0_12px_40px_rgba(0,0,0,0.2)] transition-all duration-500 hover:-translate-y-2 hover:border-[var(--color-primary)]/20 hover:shadow-[0_32px_64px_rgba(0,0,0,0.4)]"
                 >
@@ -270,7 +319,7 @@ export default async function Home() {
                         {prod.category || "Poster"}
                       </p>
                       <h3 className="text-sm sm:text-lg font-black leading-tight tracking-tight text-white transition-colors group-hover:text-[var(--color-primary)]">
-                        {prod.name}
+                        {getProductDisplayName(prod.name)}
                       </h3>
                     </div>
 
@@ -342,8 +391,8 @@ export default async function Home() {
           <p className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--color-primary)]">
             Engineering Standards
           </p>
-          <h2 className="mt-4 text-3xl font-black uppercase tracking-tighter sm:text-5xl">
-            Built for the <span className="text-[#222]">Purist</span>
+          <h2 className="text-3xl font-black uppercase tracking-tighter sm:text-5xl">
+            Premium By <span className="text-white/15">Design</span>
           </h2>
           
           <div className="mt-16 grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
@@ -351,9 +400,9 @@ export default async function Home() {
               <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-[var(--color-primary)]">
                 <span className="material-symbols-outlined text-[32px]">palette</span>
               </div>
-              <h3 className="text-lg font-bold uppercase tracking-wide">Museum-Grade</h3>
+              <h3 className="text-lg font-bold uppercase tracking-wide">Photo-Quality Prints</h3>
               <p className="mt-3 text-sm leading-6 text-white/60">
-                Heavy archival matte paper preserves deep color resolution.
+                Premium glossy or matte photo paper with vivid, accurate color.
               </p>
             </div>
             
@@ -361,9 +410,9 @@ export default async function Home() {
               <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-[var(--color-primary)]">
                 <span className="material-symbols-outlined text-[32px]">layers</span>
               </div>
-              <h3 className="text-lg font-bold uppercase tracking-wide">Precision-Cut</h3>
+              <h3 className="text-lg font-bold uppercase tracking-wide">6-Color Printing</h3>
               <p className="mt-3 text-sm leading-6 text-white/60">
-                Weatherproof vehicle decals tailored for extreme settings.
+                Professional photo printing for rich, sharp, true-to-design output.
               </p>
             </div>
             
@@ -371,9 +420,9 @@ export default async function Home() {
               <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-[var(--color-primary)]">
                 <span className="material-symbols-outlined text-[32px]">workspace_premium</span>
               </div>
-              <h3 className="text-lg font-bold uppercase tracking-wide">Collector Tier</h3>
+              <h3 className="text-lg font-bold uppercase tracking-wide">A3+ Format</h3>
               <p className="mt-3 text-sm leading-6 text-white/60">
-                Enthusiast details aligned accurately for edge spec builds.
+                Large-format prints up to A3+ size — designed to make an impact on any wall.
               </p>
             </div>
 
@@ -381,9 +430,9 @@ export default async function Home() {
               <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] text-[var(--color-primary)]">
                 <span className="material-symbols-outlined text-[32px]">local_shipping</span>
               </div>
-              <h3 className="text-lg font-bold uppercase tracking-wide">India Shipping</h3>
+              <h3 className="text-lg font-bold uppercase tracking-wide">Ships Across India</h3>
               <p className="mt-3 text-sm leading-6 text-white/60">
-                Secure courier packages mapped successfully across regions.
+                Carefully packaged and shipped to your door anywhere in India.
               </p>
             </div>
           </div>
@@ -398,7 +447,7 @@ export default async function Home() {
               Field Reports
             </p>
             <h2 className="mt-4 text-4xl font-black uppercase tracking-tighter sm:text-5xl">
-              Collector <span className="text-[#222]">Installations</span>
+              Collector <span className="text-white/15">Installations</span>
             </h2>
           </div>
           
@@ -412,7 +461,7 @@ export default async function Home() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
               <div className="absolute bottom-6 left-6">
-                <span className="text-xs font-bold tracking-wider text-white/90">Industrial Loft, Mumbai</span>
+                <span className="text-xs font-bold tracking-wider text-white/90">Wall Installation</span>
               </div>
             </div>
             
@@ -425,7 +474,7 @@ export default async function Home() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
               <div className="absolute bottom-6 left-6">
-                <span className="text-xs font-bold tracking-wider text-white/90">Minimalist Studio, Bangalore</span>
+                <span className="text-xs font-bold tracking-wider text-white/90">Home Studio</span>
               </div>
             </div>
           </div>
@@ -454,7 +503,7 @@ export default async function Home() {
             {latestProducts.length > 0 ? (
               latestProducts.map((prod, index) => (
                 <Link
-                  href={`/products/${prod.id}`}
+                  href={`/posters/${prod.url_slug || prod.id}`}
                   key={prod.id}
                   className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-[var(--color-outline-variant)]/30 bg-[var(--color-surface-container-lowest)] shadow-[0_12px_40px_rgba(0,0,0,0.04)] transition-all duration-500 hover:-translate-y-2 hover:border-[var(--color-primary)]/20 hover:shadow-[0_32px_64px_rgba(0,0,0,0.08)]"
                 >
@@ -488,7 +537,7 @@ export default async function Home() {
                         {prod.category || "Poster"}
                       </p>
                       <h3 className="text-sm sm:text-lg font-black leading-tight tracking-tight text-[var(--color-on-surface)] transition-colors group-hover:text-[var(--color-primary)]">
-                        {prod.name}
+                        {getProductDisplayName(prod.name)}
                       </h3>
                     </div>
 
@@ -515,7 +564,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 7. DECALS AS SECONDARY CATEGORY */}
+      {/* 7. DECALS AS SECONDARY CATEGORY COMMENTED OUT
       <section className="relative overflow-hidden border-t border-white/[0.03] bg-[#0a0a0a] py-20 sm:py-28 text-white">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_80%_50%,rgba(204,255,0,0.05),transparent)]" />
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
@@ -559,7 +608,6 @@ export default async function Home() {
                       </div>
                     )}
                     
-                    {/* Badge */}
                     <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between p-4">
                       <span className="rounded-full bg-[var(--color-primary-container)] px-2.5 py-1 text-[8px] font-black uppercase tracking-[0.15em] text-[var(--color-on-primary-fixed)] shadow-sm backdrop-blur-md">
                         Decal
@@ -575,7 +623,7 @@ export default async function Home() {
                         {prod.category || "Decal"}
                       </p>
                       <h3 className="text-sm sm:text-lg font-black leading-tight tracking-tight text-white transition-colors group-hover:text-[var(--color-primary)]">
-                        {prod.name}
+                        {getProductDisplayName(prod.name)}
                       </h3>
                     </div>
 
@@ -655,6 +703,7 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      */ }
 
       {/* 8. BUNDLE / AOV SECTION */}
       <section className="relative overflow-hidden border-t border-white/[0.03] bg-[var(--color-surface)] py-20 sm:py-28">
@@ -673,7 +722,7 @@ export default async function Home() {
                   The Set
                 </h2>
                 <p className="mt-5 text-sm leading-7 text-[var(--color-secondary)] sm:text-base opacity-80">
-                  Engineered synergies. Pair museum-grade prints with chassis-matched companion decals for a unified automotive aesthetic.
+                  Pair premium photo prints with complementary designs or different angles from the same release series — and save on the set.
                 </p>
                 <div className="mt-8">
                   <Link href="/shop?category=bundles" className="inline-flex items-center justify-center rounded-full bg-[var(--color-on-background)] px-8 py-4 text-sm font-black uppercase tracking-[0.22em] text-[var(--color-primary-container)] shadow-[0_12px_30px_rgba(0,0,0,0.1)] transition-transform duration-200 hover:-translate-y-0.5">
@@ -690,11 +739,11 @@ export default async function Home() {
                 
                 <div className="absolute -bottom-4 -right-4 w-[200px] aspect-video rounded-[1rem] overflow-hidden border border-white/20 bg-[#0a0a0a] shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-300">
                   <div className="absolute inset-0 bg-[#111] flex items-center justify-center">
-                    <span className="text-[12px] font-black text-white/20 tracking-[0.2em] uppercase">TRACK OUTLINE</span>
+                    <span className="text-[12px] font-black text-white/20 tracking-[0.2em] uppercase">SPEC SHEET</span>
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                   <div className="absolute bottom-2 left-3">
-                    <span className="text-[8px] font-bold uppercase tracking-wider text-[var(--color-primary)]">Windshield Companion</span>
+                    <span className="text-[8px] font-bold uppercase tracking-wider text-[var(--color-primary)]">Series Companion</span>
                   </div>
                 </div>
               </div>
@@ -720,13 +769,13 @@ export default async function Home() {
               </div>
               
               <h2 className="text-[clamp(2.5rem,7vw,5.5rem)] font-black uppercase leading-[0.85] tracking-[-0.06em]">
-                Ready to 
+                Discover Posters 
                 <br />
-                <span className="text-white/20 transition-colors duration-700 group-hover:text-white/40">Collect?</span>
+                <span className="text-white/20 transition-colors duration-700 group-hover:text-white/40">Worth Displaying</span>
               </h2>
               
               <p className="mt-6 max-w-xl text-base leading-7 text-white/50 sm:text-lg opacity-80">
-                Join the collective of automotive enthusiasts who value precision design. Secure your premium art prints today.
+                Join the collective of individuals who value precision and aesthetic impact. Secure your premium art prints today.
               </p>
               
               <div className="mt-12 flex flex-col gap-4 sm:flex-row sm:justify-center w-full sm:w-auto">
@@ -737,10 +786,10 @@ export default async function Home() {
                   Shop Posters
                 </Link>
                 <Link
-                  href="/shop?category=decals"
+                  href="/shop"
                   className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-10 py-4.5 text-center text-xs font-black uppercase tracking-[0.25em] text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/[0.08] hover:-translate-y-1"
                 >
-                  Shop Decals
+                  Browse Catalog
                 </Link>
               </div>
             </div>
@@ -752,7 +801,7 @@ export default async function Home() {
       <section className="bg-[#050606] border-t border-white/[0.02] py-8 text-center">
         <div className="mx-auto max-w-4xl px-5">
           <p className="text-[9px] leading-5 text-white/15 font-medium uppercase tracking-[0.15em]">
-            At NexaDesignLab, we bridge the gap between automotive passion and premium interior design. Our posters and collectible prints are crafted for those who appreciate both performance and aesthetics—bringing the spirit of machines into your space. Whether it’s framed wall art or high-durability decals, everything we create is built to stand out and last.
+            At NexaDesignLab, we bridge the gap between profound passion and premium interior design. Our posters and art prints are crafted for those who appreciate aesthetic impact—bringing personality and scale into your space. Every design is printed fresh on premium photo paper and made to stand out.
           </p>
         </div>
       </section>
