@@ -1,68 +1,66 @@
-# Reels — how to make one
+# Nexa sticker reels: no filming
+
+Every reel is drawn by code: an imaginary brand's sticker gets **designed →
+printed → cut on the plotter → peeled → stuck on the product**, then the
+Nexa "DM to order" end card. 18 seconds, 1080×1920, with sound effects.
 
 ```
-npx tsx scripts/render-reel.ts reels/specs/<your-spec>.json
+npx tsx scripts/make-reel.ts --all                  # every brand in reels/brands.json
+npx tsx scripts/make-reel.ts moonflour kopili-tea   # specific brands
+npx tsx scripts/make-reel.ts --random 5             # invent 5 new brands
+npx tsx scripts/make-reel.ts --random 3 --category tea --seed 40
+npx tsx scripts/make-reel.ts moonflour --stills 1,5,9,14   # quick PNG previews
 ```
 
-Output: `reels/out/<slug>/<slug>.mp4` (1080x1920, 30fps, ready for Reels),
-plus a PNG of every card/overlay. Needs `ffmpeg` on PATH and Chrome
-(set `CHROME_PATH` if it isn't found).
+Each reel lands in `reels/out/<brand-id>/`:
 
-Put raw footage in `reels/footage/<job>/`. Videos (`.mp4`, `.mov`) are
-git-ignored because they're big; keep the originals on your phone/drive.
+| file | what it is |
+|---|---|
+| `<id>.mp4` | the reel, ready to upload |
+| `cover.jpg` | cover frame (the "same box, new brand" shot) |
+| `caption.txt` | caption + hashtags to paste |
+| `brand.json` | the brand it used; paste into `brands.json` to keep a good random one |
 
-## Spec format
+Needs `ffmpeg` on PATH and Chrome (set `CHROME_PATH` if it isn't found).
+About a minute per reel.
 
-```jsonc
-{
-  "slug": "reel-02-example",          // output folder + mp4 name
-  "slides": [
-    {
-      "kind": "card",                 // full-screen brand card (hook / text)
-      "eyebrow": "Custom stickers",   // small lime caps line (optional)
-      "title": "Your logo. On every box.",
-      "body": "Supporting line.",     // optional; \n for a line break
-      "durationSec": 2.2
-    },
-    {
-      "kind": "clip",                 // your footage + caption + logo watermark
-      "src": "../footage/job/cut.mp4",// video OR photo, relative to this spec
-      "eyebrow": "Step 2",
-      "title": "Cut.",
-      "body": "Precision plotter, every edge.",
-      "startSec": 4,                  // video only: where to start in the clip
-      "speed": 2,                     // video only: 2 = twice as fast
-      "keepAudio": true,              // video only: keep plotter sound (default)
-      "durationSec": 2.2              // length in the finished reel
-    },
-    {
-      "kind": "end",                  // logo + CTA end card
-      "title": "Done.",
-      "body": "DM @nexa_designlab to order",
-      "durationSec": 2.8
-    }
-  ]
-}
-```
+## Categories (for `--random` / `--category`)
 
-Photos get a slow push-in; videos are cropped to fill 9:16.
+`bakery` (cake box) · `cafe` (coffee cup) · `pickles` (jar) · `candles`
+(candle tumbler) · `tea` (pouch) · `skincare` (dropper bottle) ·
+`cloudkitchen` (bag or box) · `boutique` (shopping bag) · `honey` (jar)
 
-## The "Print. Cut. Stick. Done." formula
+Same `--seed` = same brand, so any reel can be re-made exactly.
 
-1. Hook card (~2s)
-2. PRINT. — top-down shot of the printed sheet
-3. CUT. — close, low shot following the blade (speed 2–3x)
-4. PEEL. — sticker lifting off, printed side to camera
-5. STICK. — pressing it onto the customer's box/product
-6. DONE. end card with logo + "DM to order"
+## Adding a brand by hand
 
-12–16 seconds total. Add a trending audio in the Instagram editor, or keep
-the plotter sound — it performs well on its own.
+Copy an entry in `reels/brands.json` and change it:
 
-## Shooting checklist
+- `shape`: `circle`, `oval`, `roundrect` or `arch` (`layout: "badge"` curves the name round a circle)
+- `product`: `box`, `jar`, `cup`, `pouch`, `bottle`, `bag` (jar `contents`: `pickle`, `honey`, `cream`, `wax`)
+- `icon`: `cupcake`, `kulhad`, `coffee`, `chili`, `candle`, `tealeaves`, `drop`, `dumpling`, `hanger`, `honey`, `bowl`, `sparkle`
+- `font`: any Google Font name (`fontWeight`, `fontStyle`, `upper`, `ls` = letter spacing)
+- `palette`: sticker `bg`, text `ink`, icon `accent`, highlight `light`, scene `backdrop`
+- `hook` / `reveal`: the two headline lines at the start and end
 
-- Vertical, 60fps, phone on a stand, tap-and-hold to lock focus/exposure.
-- Bright white light (window/lamp); switch off coloured room lights.
-- Same spot for every step so the reel feels like one continuous job.
-- Clean background for the peel and stick shots.
-- Film 5–10s of each step — the script trims it.
+Real customer? Add them as a brand with `"concept": false`. The reveal then
+says "Made for <name>" instead of "Concept", and so does the caption.
+
+## Posting on Instagram
+
+1. Upload the MP4 as a Reel and pick `cover.jpg` as the cover.
+2. Add a trending song at low volume and keep the original sound (plotter/peel
+   noises) on top. Trending audio helps reach.
+3. Paste `caption.txt`. Reply to every "STICKER" DM fast.
+4. Share to your story, and use Trial Reels for some so they reach non-followers first.
+5. Batch it: make a week of reels in one go, then schedule them in Meta
+   Business Suite (one a day, evenings).
+
+## How it works
+
+- `reels/engine/stage.html` + `stage.js`: one page holds every scene;
+  `renderAt(t)` draws any moment deterministically.
+- `reels/engine/art.js`: icons, sticker layouts, product mockups (all SVG).
+- `scripts/make-reel.ts`: headless Chrome screenshots all 552 frames → ffmpeg.
+- `scripts/reel-audio.ts`: synthesises the sound effects from the scene's cue list.
+- `scripts/reel-brands.ts`: categories, the random-brand generator, captions.

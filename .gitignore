@@ -46,7 +46,5 @@ scratch/
 # local archives / snapshots (never commit)
 *.zip
 
-# reels: rendered output and raw video footage (too big for git)
+# reels: rendered videos (too big for git)
 /reels/out/
-/reels/footage/**/*.mp4
-/reels/footage/**/*.mov
